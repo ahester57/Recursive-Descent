@@ -14,6 +14,7 @@ void maketoken(token_t* token,
               const enum STATE state,
               char* string,
               const int line);
-void displaytokens(token_t** tokenlist, const int numtokens);
+void displaytokens(const token_t** tokenlist, const int numtokens);
+void displaytoken(const token_t* token);
 
 #endif

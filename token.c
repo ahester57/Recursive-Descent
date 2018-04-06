@@ -70,15 +70,21 @@ maketoken(token_t* token,
 
 // display a list of tokens
 void
-displaytokens(token_t** tokenlist, const int numtokens)
+displaytokens(const token_t** tokenlist, const int numtokens)
 {
     printf("\nFinal token list, in order:\n");
     printf("========================\n");
     int i;
     for (i = 0; i < numtokens; i++) {
         const token_t* t = tokenlist[0];
-        printf("%s, %s, %d\n", t->id, t->instance, t->line_num);
+        displaytoken(t);
         pop((void**)tokenlist);
     }
     printf("========================\n");
+}
+
+void
+displaytoken(const token_t* t)
+{
+    printf("%s, %s, %d\n", t->id, t->instance, t->line_num);
 }

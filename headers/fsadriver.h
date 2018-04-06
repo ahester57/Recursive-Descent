@@ -4,5 +4,6 @@
 #include "token.h"
 
 token_t* fsadriver(const wordlist_t* filter);
+void resetfsadriver();
 
 #endif

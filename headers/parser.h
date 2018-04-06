@@ -1,8 +1,9 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 #include "token.h"
+#include "wordlist.h"
 
-void parser(token_t** tokenlist);
+void parser(token_t** tokenlist, wordlist_t* filter);
 void program();
 void block();
 void vars();

@@ -7,7 +7,7 @@
 #include "token.h"
 
 void
-parser(token_t** tokenlist) {
+parser(token_t** tokenlist, wordlist_t* filter) {
 
 }
 

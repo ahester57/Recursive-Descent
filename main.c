@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "metafile.h"
 #include "testscanner.h"
 #include "filter.h"
@@ -53,8 +54,12 @@ main(int argc, char** argv)
     // calls testscanner() function until EOF 
     int numtokens = testscanner(tokenlist, filter);
 
+    // Copy original token list
+    const token_t** originaltokens = (const token_t**) malloc(2048*sizeof(token_t*));
+    memcpy(originaltokens, tokenlist, 2048*sizeof(token_t*));
+
     // Display the final list of tokens
-    displaytokens(tokenlist, numtokens);
+    displaytokens(originaltokens, numtokens);
 
     // free fname if it was generated.
     if (!keyboardin) {

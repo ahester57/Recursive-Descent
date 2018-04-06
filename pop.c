@@ -5,9 +5,11 @@ void*
 pop(void** list) {
     int i;
     void* temp = list[0];
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < 2048; i++) {
+        if (list[i+1] == (void*)NULL)
+            break;
         list[i] = list[i+1];
     }
-    list[i] = NULL;
+    list[i] = (void*)NULL;
     return temp;
 }

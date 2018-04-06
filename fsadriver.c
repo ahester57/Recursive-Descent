@@ -114,3 +114,8 @@ fsadriver(const wordlist_t* filter)
     return token;
 }
 
+void
+resetfsadriver() {
+    line = 0;
+    column = 0;
+}
