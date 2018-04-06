@@ -1,7 +1,8 @@
 #ifndef PARSER_H_
 #define PARSER_H_
+#include "token.h"
 
-void parser();
+void parser(token_t** tokenlist);
 void program();
 void block();
 void vars();

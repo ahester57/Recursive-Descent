@@ -3,6 +3,7 @@
 #include <string.h>
 #include "token.h"
 #include "states.h"
+#include "pop.h"
 
 // I know these first few aren't actually tokens.
 // Just so the indices match with enum STATE
@@ -75,8 +76,9 @@ displaytokens(token_t** tokenlist, const int numtokens)
     printf("========================\n");
     int i;
     for (i = 0; i < numtokens; i++) {
-        const token_t* t = tokenlist[i];
+        const token_t* t = tokenlist[0];
         printf("%s, %s, %d\n", t->id, t->instance, t->line_num);
+        pop((void**)tokenlist);
     }
     printf("========================\n");
 }
