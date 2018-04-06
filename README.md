@@ -17,15 +17,10 @@ This project was to build a parse tree from a ```FILE*```.
 and ```trimline.c```, leaving out comments
 and characters not in the alphabet. This creates a 
 new ```wordlist_t*```. It then displays the filtered source.  
-Note: This scanner completely ignores whitespace, comments, 
-and any characters not in ```alphabet.c```. This means you
-can type "tot^#@^al" and it would be registered as an identifier 
-called "total".
 
 Next, a ```token_t**``` is initialized and filled in using the 
-```testscanner``` function. This function goes through our filtered 
-word list, appending new tokens to our token list. This function 
-ends on ```EOF```.  
+```parser``` function. This function goes through our filtered 
+word list, appending new tokens to our token list. The parser then pops the first token from the head of the list and begins building a parse tree.
 
 The driver of this program is ```fsadriver.c```. It takes a 
 ```wordlist_t*``` and returns the next token, keeping track of 
