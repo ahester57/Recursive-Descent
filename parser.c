@@ -29,72 +29,92 @@ parser(token_t** tokenlist, wordlist_t* filter) {
     // show the list of tokens
     displaytokens(tokenlist, i);
 
-    printf("popping tokens now...\n");
-    int j;
-    for (j = 0; j < i; j++) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        displaytoken(tk);
-    }
+    tk = (token_t*) pop((void**) tokenlist); 
+    program(tokenlist);
 
     return i;
 }
 
 void
-program() {}
+program(token_t** tokenlist) {
+    if (strcmp(tk->id, "programTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        printf("OK\n");
+    } else {
+        printerror();
+        return;
+    }
+    vars(tokenlist);
+    block(tokenlist);
+    return;
+}
 
 void
-block() {}
+block(token_t** tokenlist) {
+
+}
 
 void
-vars() {}
+vars(token_t** tokenlist) {
+    if (strcmp(tk->id, "varTK") == 0) {
+
+    } else return;
+}
 
 void
-mvars() {}
+mvars(token_t** tokenlist){}
 
 void
-expr() {}
+expr(token_t** tokenlist){}
 
 void
-xhelp() {}
+xhelp(token_t** tokenlist){}
 
 void
-M() {}
+M(token_t** tokenlist){}
 
 void
-R() {}
+R(token_t** tokenlist){}
 
 void
-stats() {}
+stats(token_t** tokenlist){}
 
 void
-mstat() {}
+mstat(token_t** tokenlist){}
 
 void
-stat() {}
+stat(token_t** tokenlist){}
 
 void
-in() {}
+in(token_t** tokenlist){}
 
 void
-out() {}
+out(token_t** tokenlist){}
 
 void
-iff() {}
+iff(token_t** tokenlist){}
 
 void
-loop() {}
+loop(token_t** tokenlist){}
 
 void
-assign() {}
+assign(token_t** tokenlist){}
 
 void
-RO() {}
+RO(token_t** tokenlist){}
 
 void
-lesshelp() {}
+lesshelp(token_t** tokenlist){}
 
 void
-greathelp() {}
+greathelp(token_t** tokenlist){}
 
 void
-equalhelp() {}
+equalhelp(token_t** tokenlist){}
+
+void
+printerror(){
+    fprintf(stderr, "Error parsing %s @ line %d.\n",
+        tk->instance, tk->line_num);
+    return;
+}
