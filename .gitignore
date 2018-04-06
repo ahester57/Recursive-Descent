@@ -1,0 +1,5 @@
+*.o
+*.out
+*.code-workspace*
+scanner
+.vscode/*
