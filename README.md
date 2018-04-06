@@ -1,4 +1,4 @@
-### Lexical Analyzer
+### Recursive Descent Parser
 #### Austin Hester
 ##### CS 4280 - P2
 
@@ -11,7 +11,7 @@ I am implementing option #3, that is an FSA table + table.
 A parser, preprocessor, and lexical analyzer for a programming language.
 
 I did not pay too much attention to the language itself. 
-This project was simply to extract tokens from a ```FILE*```.
+This project was to build a parse tree from a ```FILE*```.
 
 ```main.c``` first filters the source file using ```filter.c``` 
 and ```trimline.c```, leaving out comments
@@ -36,7 +36,5 @@ The driver identifies states and tokens using FSA table located
 in ```fsatable.c```. This table is essentially switch and if 
 statements.
 
-Also, I did not choose to separate keywords from identifiers yet. I plan 
-on doing this one level up in the parser project.
-
 https://github.com/ahester57/lexical-analyzer
+https://github.com/ahester57/Recursive-Descent
