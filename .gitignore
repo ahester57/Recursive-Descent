@@ -2,4 +2,5 @@
 *.out
 *.code-workspace*
 scanner
+frontEnd
 .vscode/*
