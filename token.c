@@ -68,17 +68,28 @@ maketoken(token_t* token,
     token->line_num = line;
 }
 
+void
+copytokenlist(token_t** dest, token_t** src)
+{
+    if (src == (token_t**)NULL)
+        return;
+    // Copy original token list
+    dest = (token_t**) malloc(2048*sizeof(token_t*));
+    memcpy(dest, src, 2048*sizeof(token_t*));
+}
+
 // display a list of tokens
 void
-displaytokens(const token_t** tokenlist, const int numtokens)
+displaytokens(token_t** tokenlist, const int numtokens)
 {
     printf("\nFinal token list, in order:\n");
     printf("========================\n");
     int i;
     for (i = 0; i < numtokens; i++) {
-        const token_t* t = tokenlist[0];
+        const token_t* t = tokenlist[i];
+        if (t == (token_t*)NULL)
+            break;
         displaytoken(t);
-        pop((void**)tokenlist);
     }
     printf("========================\n");
 }

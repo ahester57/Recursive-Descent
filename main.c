@@ -49,17 +49,12 @@ main(int argc, char** argv)
         return 1;
     }
 
+    // Plant the roots
     node_t* root = NULL;
 
     // calls testscanner() function until EOF 
     int numtokens = parser(tokenlist, filter);
 
-    // Copy original token list
-    const token_t** originaltokens = (const token_t**) malloc(2048*sizeof(token_t*));
-    memcpy(originaltokens, tokenlist, 2048*sizeof(token_t*));
-
-    // Display the final list of tokens
-    displaytokens(originaltokens, numtokens);
 
     // free fname if it was generated.
     if (!keyboardin) {

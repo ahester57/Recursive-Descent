@@ -5,6 +5,7 @@
 #include "scanner.h"
 #include "wordlist.h"
 #include "token.h"
+#include "pop.h"
 
 static token_t* tk = NULL;
 
@@ -18,13 +19,22 @@ parser(token_t** tokenlist, wordlist_t* filter) {
         token_t* t = scanner(filter);
         if (t == (token_t*)NULL)
             return -1;
-        printf("\t\t%s, %s, %d\n", t->id, t->instance, t->line_num);
+        displaytoken(t);
         tokenlist[i] = t;
         i++;
         if (isEOFtoken(t))
             break;
     }
-    //tk = pop() 
+
+    // show the list of tokens
+    displaytokens(tokenlist, i);
+
+    printf("popping tokens now...\n");
+    int j;
+    for (j = 0; j < i; j++) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        displaytoken(tk);
+    }
 
     return i;
 }
