@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "metafile.h"
-#include "testscanner.h"
+#include "parser.h"
 #include "filter.h"
 #include "wordlist.h"
 #include "token.h"
@@ -52,7 +52,7 @@ main(int argc, char** argv)
     node_t* root = NULL;
 
     // calls testscanner() function until EOF 
-    int numtokens = testscanner(tokenlist, filter);
+    int numtokens = parser(tokenlist, filter);
 
     // Copy original token list
     const token_t** originaltokens = (const token_t**) malloc(2048*sizeof(token_t*));

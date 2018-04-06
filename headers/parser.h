@@ -3,7 +3,7 @@
 #include "token.h"
 #include "wordlist.h"
 
-void parser(token_t** tokenlist, wordlist_t* filter);
+int parser(token_t** tokenlist, wordlist_t* filter);
 void program();
 void block();
 void vars();
