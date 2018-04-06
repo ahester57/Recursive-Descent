@@ -62,7 +62,7 @@ fsadriver(const wordlist_t* filter)
                 // If we have a single character token,
                 // add the current char to string
                 if (i == 0) {
-                    if (nextchar != '\n')
+                    if (nextchar != '\n' && nextchar != ' ')
                         string[i] = nextchar;
                 }
 
@@ -82,7 +82,7 @@ fsadriver(const wordlist_t* filter)
                 // is the next char the end?
                 // if so let the position vars know
                 nextchar = buf[column];
-                if (nextchar == '\0') {
+                if (nextchar == '\0' || nextchar == '\n') {
                     column = 0;
                     line++;
                 } 
@@ -91,7 +91,7 @@ fsadriver(const wordlist_t* filter)
             // If we're still not done
             } else {
                 state = nextstate;
-                if (nextchar != '\n') {
+                if (nextchar != '\n' && nextchar != ' ') {
                     string[i] = nextchar;
                     i++;
                 }

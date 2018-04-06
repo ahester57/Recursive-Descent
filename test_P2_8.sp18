@@ -1,0 +1,12 @@
+program
+start
+	start
+		var x.
+		start
+			print 1.
+		stop
+		start
+			print 1.
+		stop
+	stop
+stop

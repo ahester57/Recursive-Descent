@@ -5,7 +5,8 @@
 #include "filter.h"
 #include "wordlist.h"
 #include "token.h"
-
+#include "tree.h"
+#include "node.h"
 
 int
 main(int argc, char** argv)
@@ -46,6 +47,8 @@ main(int argc, char** argv)
         perror("Memory error");
         return 1;
     }
+
+    node_t* root = NULL;
 
     // calls testscanner() function until EOF 
     int numtokens = testscanner(tokenlist, filter);

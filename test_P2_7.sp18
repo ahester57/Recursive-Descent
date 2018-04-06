@@ -1,0 +1,6 @@
+program
+start
+	read x. &comment&
+	let y = 2 + 3 * % % x .
+	print y.
+stop
