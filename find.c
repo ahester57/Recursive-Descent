@@ -9,7 +9,7 @@ findchar(char c, const char* charset)
     while (charset[i] != '\0')
     {
         if (c == charset[i])
-            return 1;
+            return i;
         i++; 
     }
     return 0;
@@ -22,8 +22,8 @@ findword(char* word, const char** wordset)
     while (wordset[i] != NULL)
     {
         if (strcmp(word, wordset[i]) == 0)
-            return 1;
+            return i;
         i++; 
     }
-    return 0;
+    return -1;
 }

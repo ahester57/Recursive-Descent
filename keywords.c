@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "keywords.h"
 #include "find.h"
+#include "states.h"
 
 static const char* keywords[] =
     {"start", "stop", "iter", "void", "var", "return",
@@ -13,5 +14,13 @@ int
 iskeyword(char* word)
 {
     printf("%s\n", keywords[1]);
-    return findword(word, keywords);
+    return findword(word, keywords) + 1;
+}
+
+enum STATE
+whichkeyword(char* word)
+{
+    int i = findword(word, keywords);
+    enum STATE which = START + i;
+    return which;
 }

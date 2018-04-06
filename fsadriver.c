@@ -6,6 +6,7 @@
 #include "wordlist.h"
 #include "token.h"
 #include "states.h"
+#include "keywords.h"
 
 // for tracking place in the filter
 static int line = 0;
@@ -57,7 +58,7 @@ fsadriver(const wordlist_t* filter)
                 return (token_t*)NULL;
             }
             // If we have reached a final state
-            if (nextstate >= IDENTIFIER) {
+            if (nextstate >= START) {
                 state = nextstate;
                 // If we have a single character token,
                 // add the current char to string
@@ -72,6 +73,11 @@ fsadriver(const wordlist_t* filter)
                 int lastline = line;
                 if (column == 0 && i != 0)
                     lastline--;
+
+                // Check if keyword
+                if (iskeyword(string)) {
+                    state = whichkeyword(string);
+                }
 
                 maketoken(token, state, string, lastline);
 
