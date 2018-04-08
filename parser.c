@@ -133,15 +133,35 @@ expr(token_t** tokenlist) {
             strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
         xhelp(tokenlist);
         return;
-    }
-    printerror(FUNC);
-    return;
+    } else return;
+    //printerror(FUNC);
+    //return;
 }
 
+// this is not necessary to separate right now,
+// but it should help later
 void
 xhelp(token_t** tokenlist) {
     const char* FUNC = "xhelp";
-    tk = (token_t*) pop((void**) tokenlist); 
+    if (strcmp(tk->id, "+TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        expr(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "-TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        expr(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "/TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        expr(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "*TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        expr(tokenlist);
+        return;
+    } else return;
+
+
     return;
 }
 
