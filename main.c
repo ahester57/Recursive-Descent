@@ -7,6 +7,7 @@
 #include "wordlist.h"
 #include "token.h"
 #include "tree.h"
+#include "treehelper.h"
 #include "node.h"
 
 int
@@ -53,8 +54,10 @@ main(int argc, char** argv)
     node_t* root = NULL;
 
     // calls testscanner() function until EOF 
-    int numtokens = parser(tokenlist, filter);
+    int numtokens = parser(root, tokenlist, filter);
 
+    printnode(root);
+    traversepreorder(root);
 
     // free fname if it was generated.
     if (!keyboardin) {

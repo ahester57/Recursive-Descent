@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "parser.h"
+#include "tree.h"
 #include "scanner.h"
 #include "wordlist.h"
 #include "token.h"
@@ -9,10 +10,12 @@
 
 static token_t* tk = NULL;
 static int error = 0;
+static int left = 0;
+static int level = 0;
 
 // return num tokens
 int
-parser(token_t** tokenlist, wordlist_t* filter) {
+parser(node_t* root, token_t** tokenlist, wordlist_t* filter) {
     // build token list
     int i;
     while (1)
@@ -30,38 +33,42 @@ parser(token_t** tokenlist, wordlist_t* filter) {
     // show the list of tokens
     displaytokens(tokenlist, i);
 
-    tk = (token_t*) pop((void**) tokenlist); 
-    program(tokenlist);
+    tk = (token_t*) pop((void**) tokenlist);
+    program(root, tokenlist);
 
     return i;
 }
 
 void
-program(token_t** tokenlist) {
+program(node_t* root, token_t** tokenlist) {
     const char* FUNC = "program";
+    insert(root, tk, left, level++);
+    left = 1;
     if (strcmp(tk->id, "programTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
         printerror(FUNC);
         return;
     }
-    vars(tokenlist);
-    block(tokenlist);
-    printf("OK\n");
+    vars(root, tokenlist);
+    block(root, tokenlist);
+    if (!error)
+        printf("OK\n");
     return;
 }
 
 void
-block(token_t** tokenlist) {
+block(node_t* root, token_t** tokenlist) {
     const char* FUNC = "block";
+    insert(root, tk, left, level++);
     if (strcmp(tk->id, "startTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
         printerror(FUNC);
         return;
     }
-    vars(tokenlist);
-    stats(tokenlist);
+    vars(root, tokenlist);
+    stats(root, tokenlist);
     if (strcmp(tk->id, "stopTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
@@ -71,7 +78,7 @@ block(token_t** tokenlist) {
 }
 
 void
-vars(token_t** tokenlist) {
+vars(node_t* root, token_t** tokenlist) {
     const char* FUNC = "vars";
     // start a vars
     if (strcmp(tk->id, "varTK") == 0) {
@@ -102,12 +109,12 @@ vars(token_t** tokenlist) {
         printerror(FUNC);
         return;
     }
-    mvars(tokenlist);
+    mvars(root, tokenlist);
     return;
 }
 
 void
-mvars(token_t** tokenlist) {
+mvars(node_t* root, token_t** tokenlist) {
     const char* FUNC = "mvars";
     if (strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -116,7 +123,7 @@ mvars(token_t** tokenlist) {
         tk = (token_t*) pop((void**) tokenlist); 
         if (strcmp(tk->id, "idTK") == 0) {
             tk = (token_t*) pop((void**) tokenlist); 
-            mvars(tokenlist);
+            mvars(root, tokenlist);
             return;
         } else {
             printerror(FUNC);
@@ -129,11 +136,11 @@ mvars(token_t** tokenlist) {
 }
 
 void
-expr(token_t** tokenlist) {
-    M(tokenlist);
+expr(node_t* root, token_t** tokenlist) {
+    M(root, tokenlist);
     if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
             strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
-        xhelp(tokenlist);
+        xhelp(root, tokenlist);
         return;
     } else return;
 }
@@ -141,36 +148,36 @@ expr(token_t** tokenlist) {
 // this is not necessary to separate right now,
 // but it should help later
 void
-xhelp(token_t** tokenlist) {
+xhelp(node_t* root, token_t** tokenlist) {
     if (strcmp(tk->id, "+TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        expr(tokenlist);
+        expr(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "-TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        expr(tokenlist);
+        expr(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "/TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        expr(tokenlist);
+        expr(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "*TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        expr(tokenlist);
+        expr(root, tokenlist);
         return;
     } else return;
 }
 
 void
-M(token_t** tokenlist) {
+M(node_t* root, token_t** tokenlist) {
     const char* FUNC = "M";
     if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
             strcmp(tk->id, "intTK") == 0) {
-        R(tokenlist);
+        R(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "%TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        M(tokenlist);
+        M(root, tokenlist);
         return; 
     } else {
         printerror(FUNC);
@@ -179,11 +186,11 @@ M(token_t** tokenlist) {
 }
 
 void
-R(token_t** tokenlist) {
+R(node_t* root, token_t** tokenlist) {
     const char* FUNC = "R";
     if (strcmp(tk->id, "(TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        expr(tokenlist);
+        expr(root, tokenlist);
         if (strcmp(tk->id, ")TK") == 0) {
             tk = (token_t*) pop((void**) tokenlist); 
             return;
@@ -204,45 +211,45 @@ R(token_t** tokenlist) {
 }
 
 void
-stats(token_t** tokenlist) {
-    stat(tokenlist);
-    mstat(tokenlist);
+stats(node_t* root, token_t** tokenlist) {
+    stat(root, tokenlist);
+    mstat(root, tokenlist);
     return;
 }
 
 void
-mstat(token_t** tokenlist) {
+mstat(node_t* root, token_t** tokenlist) {
     if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
         strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
         strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
-        stat(tokenlist);
-        mstat(tokenlist);
+        stat(root, tokenlist);
+        mstat(root, tokenlist);
         return;
     } else return;
 }
 
 void
-stat(token_t** tokenlist) {
+stat(node_t* root, token_t** tokenlist) {
     const char* FUNC = "stat";
     if (strcmp(tk->id, "readTK") == 0) {
-        in(tokenlist);
+        in(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "printTK") == 0) {
-        out(tokenlist);
+        out(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "startTK") == 0) {
-        block(tokenlist);
+        block(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "iffTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        iffandloop(tokenlist);
+        iffandloop(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "iterTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        iffandloop(tokenlist);
+        iffandloop(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "letTK") == 0) {
-        assign(tokenlist);
+        assign(root, tokenlist);
         return;
     } else {
         printerror(FUNC);
@@ -251,7 +258,7 @@ stat(token_t** tokenlist) {
 }
 
 void
-in(token_t** tokenlist) {
+in(node_t* root, token_t** tokenlist) {
     const char* FUNC = "in";
     if (strcmp(tk->id, "readTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -275,7 +282,7 @@ in(token_t** tokenlist) {
 }
 
 void
-out(token_t** tokenlist) {
+out(node_t* root, token_t** tokenlist) {
     const char* FUNC = "out";
     if (strcmp(tk->id, "printTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -283,7 +290,7 @@ out(token_t** tokenlist) {
         printerror(FUNC);
         return;
     } 
-    expr(tokenlist);
+    expr(root, tokenlist);
     if (strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
@@ -294,7 +301,7 @@ out(token_t** tokenlist) {
 }
 
 void
-iffandloop(token_t** tokenlist) {
+iffandloop(node_t* root, token_t** tokenlist) {
     const char* FUNC = "iffandloop";
     if (strcmp(tk->id, "(TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -303,9 +310,9 @@ iffandloop(token_t** tokenlist) {
         return;
     }
 
-    expr(tokenlist);
-    RO(tokenlist);
-    expr(tokenlist);
+    expr(root, tokenlist);
+    RO(root, tokenlist);
+    expr(root, tokenlist);
 
     if (strcmp(tk->id, ")TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -314,12 +321,12 @@ iffandloop(token_t** tokenlist) {
         return;
     }
 
-    stat(tokenlist);
+    stat(root, tokenlist);
     return;
 }
 
 void
-assign(token_t** tokenlist) {
+assign(node_t* root, token_t** tokenlist) {
     const char* FUNC = "assign";
     if (strcmp(tk->id, "letTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -342,7 +349,7 @@ assign(token_t** tokenlist) {
         return;
     }
 
-    expr(tokenlist);
+    expr(root, tokenlist);
 
     if (strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -354,19 +361,19 @@ assign(token_t** tokenlist) {
 }
 
 void
-RO(token_t** tokenlist) {
+RO(node_t* root, token_t** tokenlist) {
     const char* FUNC = "RO";
     if (strcmp(tk->id, "<TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        lesshelp(tokenlist);
+        lesshelp(root, tokenlist);
         return;
     } else if (strcmp(tk->id, ">TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        greathelp(tokenlist);
+        greathelp(root, tokenlist);
         return;
     } else if (strcmp(tk->id, "=TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        equalhelp(tokenlist);
+        equalhelp(root, tokenlist);
         return;
     } else {
         printerror(FUNC);
@@ -375,7 +382,7 @@ RO(token_t** tokenlist) {
 }
 
 void
-lesshelp(token_t** tokenlist) { 
+lesshelp(node_t* root, token_t** tokenlist) { 
     if (strcmp(tk->id, "<TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
@@ -383,7 +390,7 @@ lesshelp(token_t** tokenlist) {
 }
 
 void
-greathelp(token_t** tokenlist) {
+greathelp(node_t* root, token_t** tokenlist) {
     if (strcmp(tk->id, ">TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
@@ -391,7 +398,7 @@ greathelp(token_t** tokenlist) {
 }
 
 void
-equalhelp(token_t** tokenlist) {
+equalhelp(node_t* root, token_t** tokenlist) {
     if (strcmp(tk->id, "=TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;

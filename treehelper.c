@@ -19,7 +19,8 @@ initializenode (node_t* root, int level)
 void
 addtokentonode (node_t* root, token_t* token)
 {
-    memcpy(root->token, token, sizeof(token_t));
+    //memcpy(root->token, token, sizeof(token_t));
+    root->token = token;
 }
 
 void
@@ -35,8 +36,11 @@ traverseinorder (node_t* root)
 void
 traversepreorder (node_t* root)
 {
-    if (root == NULL)
+    if (root == NULL) {
+        perror("root is null");
         return;
+    }
+    printf("root not null\n");
     printnode(root);
     traversepreorder(root->left);
     traversepreorder(root->right);
