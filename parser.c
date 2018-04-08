@@ -8,6 +8,7 @@
 #include "pop.h"
 
 static token_t* tk = NULL;
+static int error = 0;
 
 // return num tokens
 int
@@ -72,42 +73,60 @@ vars(token_t** tokenlist) {
     // start a vars
     if (strcmp(tk->id, "varTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
-        // check identifier
-        if (strcmp(tk->id, "idTK") == 0) {
-            tk = (token_t*) pop((void**) tokenlist); 
-        } else {
-            printerror();
-            return;
-        }
-        // check =
-        if (strcmp(tk->id, "=TK") == 0) {
-            tk = (token_t*) pop((void**) tokenlist); 
-        } else {
-            printerror();
-            return;
-        }
-        // check integer
-        if (strcmp(tk->id, "intTK") == 0) {
-            tk = (token_t*) pop((void**) tokenlist); 
-        } else {
-            printerror();
-            return;
-        }
-        mvars(tokenlist);
-        return;
     // if vars is empty
     } else return;
+    // check identifier
+    if (strcmp(tk->id, "idTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    // check = or .
+    if (strcmp(tk->id, "=TK") == 0 || strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    // check integer
+    if (strcmp(tk->id, "intTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    mvars(tokenlist);
+    return;
 }
 
 void
-mvars(token_t** tokenlist){}
+mvars(token_t** tokenlist) {
+    if (strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else if (strcmp(tk->id, ":TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        if (strcmp(tk->id, "idTK") == 0) {
+            tk = (token_t*) pop((void**) tokenlist); 
+            mvars(tokenlist);
+            return;
+        } else {
+            printerror();
+            return;
+        }
+    } else {
+        printerror();
+        return;
+    }
+
+}
 
 void
 expr(token_t** tokenlist) {
     M(tokenlist);
-    if (strcmp(tk->id, "+TK") || strcmp(tk->id, "-TK") ||
-            strcmp(tk->id, "*TK") || strcmp(tk->id, "/TK")) {
-        tk = (token_t*) pop((void**) tokenlist); 
+    if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
+            strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
         xhelp(tokenlist);
         return;
     }
@@ -115,13 +134,20 @@ expr(token_t** tokenlist) {
 }
 
 void
-xhelp(token_t** tokenlist){}
+xhelp(token_t** tokenlist) {
+    tk = (token_t*) pop((void**) tokenlist); 
+    return;
+}
 
 void
-M(token_t** tokenlist){}
+M(token_t** tokenlist) {
+
+}
 
 void
-R(token_t** tokenlist){}
+R(token_t** tokenlist) {
+
+}
 
 void
 stats(token_t** tokenlist) {
@@ -132,17 +158,37 @@ stats(token_t** tokenlist) {
 
 void
 mstat(token_t** tokenlist) {
-    
+    if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
+        strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
+        strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
+        stat(tokenlist);
+        mstat(tokenlist);
+        return;
+    } else return;
 }
 
 void
 stat(token_t** tokenlist) {
     if (strcmp(tk->id, "readTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
         in(tokenlist);
+        return;
     } else if (strcmp(tk->id, "printTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
         out(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "startTK") == 0) {
+        block(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "iffTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        iffandloop(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "iterTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        iffandloop(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "letTK") == 0) {
+        assign(tokenlist);
+        return;
     } else {
         printerror();
         return;
@@ -150,21 +196,103 @@ stat(token_t** tokenlist) {
 }
 
 void
-in(token_t** tokenlist){}
-
-void
-out(token_t** tokenlist) {
-
+in(token_t** tokenlist) {
+    if (strcmp(tk->id, "readTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    if (strcmp(tk->id, "idTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    if (strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else {
+        printerror();
+        return;
+    }
 }
 
 void
-iff(token_t** tokenlist){}
+out(token_t** tokenlist) {
+    if (strcmp(tk->id, "printTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    } 
+    expr(tokenlist);
+    if (strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else {
+        printerror();
+        return;
+    }
+}
 
 void
-loop(token_t** tokenlist){}
+iffandloop(token_t** tokenlist) {
+    if (strcmp(tk->id, "(TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+
+    expr(tokenlist);
+    RO(tokenlist);
+    expr(tokenlist);
+
+    if (strcmp(tk->id, ")TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+
+    stat(tokenlist);
+    return;
+}
 
 void
-assign(token_t** tokenlist){}
+assign(token_t** tokenlist) {
+    if (strcmp(tk->id, "letTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    } 
+    // check identifier
+    if (strcmp(tk->id, "idTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+    // check =
+    if (strcmp(tk->id, "=TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+    } else {
+        printerror();
+        return;
+    }
+
+    expr(tokenlist);
+
+    if (strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else {
+        printerror();
+        return;
+    }
+}
 
 void
 RO(token_t** tokenlist){}
@@ -180,6 +308,7 @@ equalhelp(token_t** tokenlist){}
 
 void
 printerror(){
+    error = 1;
     fprintf(stderr, "Error parsing %s @ line %d.\n",
         tk->instance, tk->line_num);
     return;

@@ -63,7 +63,7 @@ fsadriver(const wordlist_t* filter)
                 // If we have a single character token,
                 // add the current char to string
                 if (i == 0) {
-                    if (nextchar != '\n' && nextchar != ' ')
+                    //if (nextchar != '\n' && nextchar != ' ')
                         string[i] = nextchar;
                 }
 

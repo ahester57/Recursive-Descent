@@ -9,7 +9,7 @@ findchar(char c, const char* charset)
     while (charset[i] != '\0')
     {
         if (c == charset[i])
-            return i;
+            return 1;
         i++; 
     }
     return 0;
