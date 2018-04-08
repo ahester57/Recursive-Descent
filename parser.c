@@ -86,8 +86,11 @@ vars(token_t** tokenlist) {
         return;
     }
     // check = or .
-    if (strcmp(tk->id, "=TK") == 0 || strcmp(tk->id, ".TK") == 0) {
+    if (strcmp(tk->id, "=TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
+    } else if (strcmp(tk->id, ".TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
     } else {
         printerror(FUNC);
         return;
@@ -127,22 +130,18 @@ mvars(token_t** tokenlist) {
 
 void
 expr(token_t** tokenlist) {
-    const char* FUNC = "expr";
     M(tokenlist);
     if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
             strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
         xhelp(tokenlist);
         return;
     } else return;
-    //printerror(FUNC);
-    //return;
 }
 
 // this is not necessary to separate right now,
 // but it should help later
 void
 xhelp(token_t** tokenlist) {
-    const char* FUNC = "xhelp";
     if (strcmp(tk->id, "+TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         expr(tokenlist);
@@ -160,9 +159,6 @@ xhelp(token_t** tokenlist) {
         expr(tokenlist);
         return;
     } else return;
-
-
-    return;
 }
 
 void
@@ -209,7 +205,6 @@ R(token_t** tokenlist) {
 
 void
 stats(token_t** tokenlist) {
-    const char* FUNC = "stats";
     stat(tokenlist);
     mstat(tokenlist);
     return;
@@ -217,7 +212,6 @@ stats(token_t** tokenlist) {
 
 void
 mstat(token_t** tokenlist) {
-    const char* FUNC = "mstat";
     if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
         strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
         strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
@@ -360,16 +354,49 @@ assign(token_t** tokenlist) {
 }
 
 void
-RO(token_t** tokenlist){}
+RO(token_t** tokenlist) {
+    const char* FUNC = "RO";
+    if (strcmp(tk->id, "<TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        lesshelp(tokenlist);
+        return;
+    } else if (strcmp(tk->id, ">TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        greathelp(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "=TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        equalhelp(tokenlist);
+        return;
+    } else {
+        printerror(FUNC);
+        return;
+    }
+}
 
 void
-lesshelp(token_t** tokenlist){}
+lesshelp(token_t** tokenlist) { 
+    if (strcmp(tk->id, "<TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else return;
+}
 
 void
-greathelp(token_t** tokenlist){}
+greathelp(token_t** tokenlist) {
+    if (strcmp(tk->id, ">TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else return;
+}
 
 void
-equalhelp(token_t** tokenlist){}
+equalhelp(token_t** tokenlist) {
+    if (strcmp(tk->id, "=TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else return;
+}
 
 void
 printerror(const char* callingFunction){
