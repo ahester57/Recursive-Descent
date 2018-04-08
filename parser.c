@@ -38,10 +38,11 @@ parser(token_t** tokenlist, wordlist_t* filter) {
 
 void
 program(token_t** tokenlist) {
+    const char* FUNC = "program";
     if (strcmp(tk->id, "programTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     vars(tokenlist);
@@ -52,10 +53,11 @@ program(token_t** tokenlist) {
 
 void
 block(token_t** tokenlist) {
+    const char* FUNC = "block";
     if (strcmp(tk->id, "startTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     vars(tokenlist);
@@ -63,13 +65,14 @@ block(token_t** tokenlist) {
     if (strcmp(tk->id, "stopTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 }
 
 void
 vars(token_t** tokenlist) {
+    const char* FUNC = "vars";
     // start a vars
     if (strcmp(tk->id, "varTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
@@ -79,21 +82,21 @@ vars(token_t** tokenlist) {
     if (strcmp(tk->id, "idTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     // check = or .
     if (strcmp(tk->id, "=TK") == 0 || strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     // check integer
     if (strcmp(tk->id, "intTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     mvars(tokenlist);
@@ -102,6 +105,7 @@ vars(token_t** tokenlist) {
 
 void
 mvars(token_t** tokenlist) {
+    const char* FUNC = "mvars";
     if (strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
@@ -112,45 +116,80 @@ mvars(token_t** tokenlist) {
             mvars(tokenlist);
             return;
         } else {
-            printerror();
+            printerror(FUNC);
             return;
         }
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
-
 }
 
 void
 expr(token_t** tokenlist) {
+    const char* FUNC = "expr";
     M(tokenlist);
     if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
             strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
         xhelp(tokenlist);
         return;
     }
+    printerror(FUNC);
     return;
 }
 
 void
 xhelp(token_t** tokenlist) {
+    const char* FUNC = "xhelp";
     tk = (token_t*) pop((void**) tokenlist); 
     return;
 }
 
 void
 M(token_t** tokenlist) {
-
+    const char* FUNC = "M";
+    if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
+            strcmp(tk->id, "intTK") == 0) {
+        R(tokenlist);
+        return;
+    } else if (strcmp(tk->id, "%TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        M(tokenlist);
+        return; 
+    } else {
+        printerror(FUNC);
+        return;
+    }
 }
 
 void
 R(token_t** tokenlist) {
-
+    const char* FUNC = "R";
+    if (strcmp(tk->id, "(TK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        expr(tokenlist);
+        if (strcmp(tk->id, ")TK") == 0) {
+            tk = (token_t*) pop((void**) tokenlist); 
+            return;
+        } else {
+            printerror(FUNC);
+            return;
+        }
+    } else if (strcmp(tk->id, "idTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else if (strcmp(tk->id, "intTK") == 0) {
+        tk = (token_t*) pop((void**) tokenlist); 
+        return;
+    } else {
+        printerror(FUNC);
+        return;
+    }
 }
 
 void
 stats(token_t** tokenlist) {
+    const char* FUNC = "stats";
     stat(tokenlist);
     mstat(tokenlist);
     return;
@@ -158,6 +197,7 @@ stats(token_t** tokenlist) {
 
 void
 mstat(token_t** tokenlist) {
+    const char* FUNC = "mstat";
     if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
         strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
         strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
@@ -169,6 +209,7 @@ mstat(token_t** tokenlist) {
 
 void
 stat(token_t** tokenlist) {
+    const char* FUNC = "stat";
     if (strcmp(tk->id, "readTK") == 0) {
         in(tokenlist);
         return;
@@ -190,40 +231,42 @@ stat(token_t** tokenlist) {
         assign(tokenlist);
         return;
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 }
 
 void
 in(token_t** tokenlist) {
+    const char* FUNC = "in";
     if (strcmp(tk->id, "readTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     if (strcmp(tk->id, "idTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     if (strcmp(tk->id, ".TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 }
 
 void
 out(token_t** tokenlist) {
+    const char* FUNC = "out";
     if (strcmp(tk->id, "printTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     } 
     expr(tokenlist);
@@ -231,17 +274,18 @@ out(token_t** tokenlist) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 }
 
 void
 iffandloop(token_t** tokenlist) {
+    const char* FUNC = "iffandloop";
     if (strcmp(tk->id, "(TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 
@@ -252,7 +296,7 @@ iffandloop(token_t** tokenlist) {
     if (strcmp(tk->id, ")TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 
@@ -262,24 +306,25 @@ iffandloop(token_t** tokenlist) {
 
 void
 assign(token_t** tokenlist) {
+    const char* FUNC = "assign";
     if (strcmp(tk->id, "letTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     } 
     // check identifier
     if (strcmp(tk->id, "idTK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
     // check =
     if (strcmp(tk->id, "=TK") == 0) {
         tk = (token_t*) pop((void**) tokenlist); 
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 
@@ -289,7 +334,7 @@ assign(token_t** tokenlist) {
         tk = (token_t*) pop((void**) tokenlist); 
         return;
     } else {
-        printerror();
+        printerror(FUNC);
         return;
     }
 }
@@ -307,9 +352,10 @@ void
 equalhelp(token_t** tokenlist){}
 
 void
-printerror(){
+printerror(const char* callingFunction){
     error = 1;
-    fprintf(stderr, "Error parsing %s @ line %d.\n",
+    fprintf(stderr, "Error parsing %s @ line %d.\t",
         tk->instance, tk->line_num);
+    fprintf(stderr, "[[ in function %s ]]\n", callingFunction);
     return;
 }
