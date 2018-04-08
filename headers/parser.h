@@ -23,6 +23,6 @@ void RO(token_t**);
 void lesshelp(token_t**);
 void greathelp(token_t**);
 void equalhelp(token_t**);
-void printerror();
+void printerror(const char* FUNC);
 
 #endif

@@ -20,7 +20,6 @@ trimline(char* dest, const char* src)
 
     while (c != '\0')
     {
-        printf("%c\n", c);
         if (c == '&') {
             // toggle comment
             commentflag = (commentflag + 1) % 2;

@@ -47,6 +47,7 @@ filtersource(FILE* fp)
     lines[i] = (char*)NULL;
     list->list = lines; 
     list->length = i+1;
+    free(buf);
     return list;
 }
 

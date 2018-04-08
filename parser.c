@@ -20,7 +20,7 @@ parser(token_t** tokenlist, wordlist_t* filter) {
         token_t* t = scanner(filter);
         if (t == (token_t*)NULL)
             return -1;
-        displaytoken(t);
+        //displaytoken(t);
         tokenlist[i] = t;
         i++;
         if (isEOFtoken(t))

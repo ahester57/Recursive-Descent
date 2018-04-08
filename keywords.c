@@ -13,7 +13,6 @@ static const char* keywords[] =
 int
 iskeyword(char* word)
 {
-    printf("%s\n", keywords[1]);
     return findword(word, keywords) + 1;
 }
 

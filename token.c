@@ -78,6 +78,7 @@ maketoken(token_t* token,
     strcpy(token->instance, string);
     token->id = gettoken(state);
     token->line_num = line;
+    return;
 }
 
 void
