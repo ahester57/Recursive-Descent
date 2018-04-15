@@ -46,9 +46,9 @@ fsadriver(const wordlist_t* filter)
         while (state < IDENTIFIER)
         {
             nextstate = fsatable(state, nextchar);
-            //fprintf(stderr, "state\t = %d\n", state);
-            //fprintf(stderr, "string\t = .%s.\n", string);
-            //fprintf(stderr, "next\t = %c,\n", nextchar);
+            fprintf(stderr, "state\t = %d\n", state);
+            fprintf(stderr, "string\t = .%s.\n", string);
+            fprintf(stderr, "next\t = %c,\n", nextchar);
 
             // If there is an error
             if (nextstate == ERROR) {
@@ -63,9 +63,18 @@ fsadriver(const wordlist_t* filter)
                 // If we have a single character token,
                 // add the current char to string
                 if (i == 0) {
-                    if (nextchar != '\n' && nextchar != ' ')
+                    if (nextchar != '\n' && nextchar != ' ') {
                         string[i] = nextchar;
+                    }
                 }
+                if (nextstate == EQUALSEQUALS ||
+                    nextstate == GREATEREQUALS ||
+                    nextstate == LESSEQUALS) {
+                    string[i] = nextchar;
+                    column++;
+                }
+
+
 
                 // the following corrects error of line number
                 // when the lookahead requires going to the

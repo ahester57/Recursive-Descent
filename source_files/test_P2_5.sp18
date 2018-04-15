@@ -1,4 +1,7 @@
 program
 start
-	let x = 2 .
+	iter ( 2 >> 2 ) 
+		start
+			read x .
+		stop
 stop

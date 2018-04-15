@@ -105,6 +105,15 @@ fsatable(const enum STATE state, const char nextchar)
             if (nextchar == 26)
                 nextstate = INTEGER;
             break;
+        case THREE:
+            nextstate = operatortable(state, nextchar);
+            break;
+        case FOUR:
+            nextstate = operatortable(state, nextchar);
+            break;
+        case FIVE:
+            nextstate = operatortable(state, nextchar);
+            break;
         default:
             nextstate = ERROR;
     }
@@ -127,15 +136,15 @@ operatortable(const int state, const char nextchar)
     {
         case INITIAL:
             if (nextchar == '=') {
-                nextstate = EQUALS;
+                nextstate = THREE;
                 break;
             }
             if (nextchar == '>') {
-                nextstate = GREATER;
+                nextstate = FOUR;
                 break;
             }
             if (nextchar == '<') {
-                nextstate = LESS;
+                nextstate = FIVE;
                 break;
             }
             if (nextchar == ':') {
@@ -161,6 +170,32 @@ operatortable(const int state, const char nextchar)
             if (nextchar == '%') {
                 nextstate = PERCENT;
                 break;
+            }
+            break;
+        case THREE:
+            if (nextchar == '=') {
+                nextstate = EQUALSEQUALS;
+                break;
+            } else {
+                nextstate = EQUALS;
+                break;
+            }
+            break;
+        case FOUR:
+            if (nextchar == '>') {
+                nextstate = GREATEREQUALS;
+                break;
+            } else {
+                nextstate = GREATER;
+                break;
+            }
+            break;
+        case FIVE:
+            if (nextchar == '<') {
+                nextstate = LESSEQUALS;
+                break;
+            } else {
+                nextstate = LESS;
             }
             break;
         default:

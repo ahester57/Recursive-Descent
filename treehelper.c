@@ -11,9 +11,9 @@ initializenode (node_t* root, int len, int level)
     root = (node_t*) malloc(sizeof(node_t));
     root->token = (token_t*) malloc(sizeof(token_t));
     root->depth = level;
-    root->children = (node_t**) malloc(sizeof(16*sizeof(node_t*)));
+    root->children = (node_t**) malloc(sizeof(8*sizeof(node_t*)));
     int i;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 8; i++) {
         root->children[i] = (node_t*) malloc(sizeof(node_t));
         root->children[i] = NULL;
     }
