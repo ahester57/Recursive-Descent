@@ -1,0 +1,4 @@
+program
+start
+	let y = 2 + 3 * % % y .
+stop

@@ -1,0 +1,6 @@
+program
+var x = 2 : y : z .
+start
+	var y = 3 .
+	print 1.
+stop

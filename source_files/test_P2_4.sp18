@@ -1,0 +1,4 @@
+program
+start
+	read x .
+stop
