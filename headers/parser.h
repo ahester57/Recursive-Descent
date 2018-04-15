@@ -4,7 +4,7 @@
 #include "node.h"
 #include "wordlist.h"
 
-int parser(node_t* root, token_t** tokenlist, wordlist_t* filter);
+node_t* parser(node_t* root, token_t** tk, token_t** tc, wordlist_t* fltr, int* n);
 void program(node_t* root, token_t**);
 void block(node_t* root, token_t**);
 void vars(node_t* root, token_t**);

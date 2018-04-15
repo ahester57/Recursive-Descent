@@ -44,7 +44,7 @@ fsatable(const enum STATE state, const char nextchar)
                 nextstate = INITIAL;
                 break;
             }
-            if (nextchar == '\t')
+            if (nextchar == 26)
                 nextstate = EOFILE;
             break;
         // case: the beginnings of an identifier
@@ -73,7 +73,7 @@ fsatable(const enum STATE state, const char nextchar)
                 nextstate = IDENTIFIER;
                 break;
             }
-            if (nextchar == '\t')
+            if (nextchar == 26)
                 nextstate = IDENTIFIER;
             break;
         // case: the beginnings of an integer
@@ -102,7 +102,7 @@ fsatable(const enum STATE state, const char nextchar)
                 nextstate = INTEGER;
                 break;
             }
-            if (nextchar == '\t')
+            if (nextchar == 26)
                 nextstate = INTEGER;
             break;
         default:

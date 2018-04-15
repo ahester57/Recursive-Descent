@@ -44,20 +44,22 @@ main(int argc, char** argv)
     displayfilter(filter);
 
     // Initialize the token list
-    token_t** tokenlist = (token_t**) malloc(2048*sizeof(token_t*));
-    if (tokenlist == (token_t**)NULL) {
+    token_t** tokenlist = (token_t**) malloc(256*sizeof(token_t*));
+    token_t** tokencopy = (token_t**) malloc(256*sizeof(token_t*));
+    if (tokenlist == (token_t**)NULL || tokencopy == (token_t**)NULL) {
         perror("Memory error");
         return 1;
     }
-
-    // Plant the roots
+    
+    int n = 0;
     node_t* root = NULL;
-
     // calls testscanner() function until EOF 
-    int numtokens = parser(root, tokenlist, filter);
+    root = parser(root, tokenlist, tokencopy, filter, &n);
 
-    printnode(root);
-    traversepreorder(root);
+    displaytokens(tokencopy, n);
+    // Plant the roots
+
+    //traversepreorder(rot);
 
     // free fname if it was generated.
     if (!keyboardin) {

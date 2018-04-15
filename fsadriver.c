@@ -34,7 +34,7 @@ fsadriver(const wordlist_t* filter)
             // If next line is NULL,
             // \t is a special char here, signifies 
             // EOF to FSA
-            nextchar = '\t';            
+            nextchar = 26;            
         } else {
             // copy new line to buffer
             strcpy(buf, filter->list[line]);
@@ -47,7 +47,7 @@ fsadriver(const wordlist_t* filter)
         {
             nextstate = fsatable(state, nextchar);
             //fprintf(stderr, "state\t = %d\n", state);
-            //fprintf(stderr, "string\t = %s\n", string);
+            //fprintf(stderr, "string\t = .%s.\n", string);
             //fprintf(stderr, "next\t = %c,\n", nextchar);
 
             // If there is an error

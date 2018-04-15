@@ -3,6 +3,8 @@
 #include <string.h>
 #include "parser.h"
 #include "tree.h"
+#include "treehelper.h"
+#include "node.h"
 #include "scanner.h"
 #include "wordlist.h"
 #include "token.h"
@@ -10,67 +12,128 @@
 
 static token_t* tk = NULL;
 static int error = 0;
-static int left = 0;
+const int LEFT = 0;
+const int RIGHT = 1;
 static int level = 0;
 
+
 // return num tokens
-int
-parser(node_t* root, token_t** tokenlist, wordlist_t* filter) {
+node_t*
+parser(node_t* root, token_t** tklist, token_t** tc, wordlist_t* filter, int* n)
+{
     // build token list
     int i;
     while (1)
     {
         token_t* t = scanner(filter);
         if (t == (token_t*)NULL)
-            return -1;
+            return (node_t*)NULL;
         //displaytoken(t);
-        tokenlist[i] = t;
+        tklist[i] = t;
         i++;
         if (isEOFtoken(t))
             break;
     }
 
-    // show the list of tokens
-    displaytokens(tokenlist, i);
+    // deep copy token list
+    copytokenlist(tc, tklist, i);
 
-    tk = (token_t*) pop((void**) tokenlist);
-    program(root, tokenlist);
+    tk = customtoken("<>", "<program>", 0);
+    root = NULL;
+    root = insert(root, tk,  level++);
 
-    return i;
+    tk = (token_t*) pop((void**) tklist);
+    program(root, tklist);
+    printf("fuck\n");
+ 
+    //displaytokens(tc, i);
+    //printf("~%d\n", root->num_children);
+    traversepreorder(root);
+
+    // set numtokens
+    *n = i;
+    return root;
 }
 
 void
-program(node_t* root, token_t** tokenlist) {
+program(node_t* root, token_t** tklist) {
     const char* FUNC = "program";
-    insert(root, tk, left, level++);
-    left = 1;
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+    printf("fuck\n");
+
+
     if (strcmp(tk->id, "programTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk,  level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        // vars nonterminal
+        if (strcmp(tk->id, "varTK") == 0) {
+            level = lvl;
+            tmp = customtoken("<>", "<vars>", 0);
+            insert(root, tmp,  lvl);
+            vars(root->children[root->num_children-1], tklist);
+        } 
+
+        if (strcmp(tk->id, "startTK") == 0) {
+            tmp = customtoken("<>", "<block>", 0);
+            insert(root, tmp,  lvl);
+            level = lvl;
+            block(root->children[root->num_children-1], tklist);
+
+        } else {
+            printerror(FUNC);
+            return;
+        }
     } else {
         printerror(FUNC);
         return;
     }
-    vars(root, tokenlist);
-    block(root, tokenlist);
+
     if (!error)
         printf("OK\n");
     return;
 }
 
 void
-block(node_t* root, token_t** tokenlist) {
+block(node_t* root, token_t** tklist) {
     const char* FUNC = "block";
-    insert(root, tk, left, level++);
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
+
     if (strcmp(tk->id, "startTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, ++level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        // if there are vars
+        if (strcmp(tk->id, "varTK") == 0) {
+            tmp = customtoken("<>", "<vars>", 0);
+            lvl = level;
+            root = insert(root, tmp,  ++level);
+            vars(root->children[root->num_children-1], tklist);
+            level = lvl;
+        } 
+        printf("fuckkkkkkkkkk\n");
+        if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
+            strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
+            strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
+            // we got stats
+            tmp = customtoken("<>", "<stats>", 0);
+            lvl = level;
+            root = insert(root, tmp,  level++);
+            stats(root->children[root->num_children-1], tklist);
+        }
+
     } else {
         printerror(FUNC);
         return;
     }
-    vars(root, tokenlist);
-    stats(root, tokenlist);
+
+
     if (strcmp(tk->id, "stopTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, lvl);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
@@ -78,52 +141,88 @@ block(node_t* root, token_t** tokenlist) {
 }
 
 void
-vars(node_t* root, token_t** tokenlist) {
+vars(node_t* root, token_t** tklist) {
     const char* FUNC = "vars";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     // start a vars
     if (strcmp(tk->id, "varTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, ++level);
+        tk = (token_t*) pop((void**) tklist); 
     // if vars is empty
     } else return;
+
     // check identifier
     if (strcmp(tk->id, "idTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
     // check = or .
     if (strcmp(tk->id, "=TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
     } else if (strcmp(tk->id, ".TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
         printerror(FUNC);
         return;
     }
+
     // check integer
-    if (strcmp(tk->id, "intTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+    lvl = level;
+    if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
+            strcmp(tk->id, "intTK") == 0 || strcmp(tk->id, "%TK") == 0) {
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
     } else {
         printerror(FUNC);
         return;
     }
-    mvars(root, tokenlist);
+
+    level = lvl;
+    // we have more vars
+    if (strcmp(tk->id, ".TK") == 0 || strcmp(tk->id, ":TK") == 0) {
+        tmp = customtoken("<>", "<mvars>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        mvars(root->children[root->num_children-1], tklist);
+        level = lvl;
+        //mvars(root, tklist);
+    }
     return;
 }
 
 void
-mvars(node_t* root, token_t** tokenlist) {
+mvars(node_t* root, token_t** tklist) {
     const char* FUNC = "mvars";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, ".TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else if (strcmp(tk->id, ":TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
         if (strcmp(tk->id, "idTK") == 0) {
-            tk = (token_t*) pop((void**) tokenlist); 
-            mvars(root, tokenlist);
+            insert(root, tk, level);
+            tk = (token_t*) pop((void**) tklist); 
+            if (strcmp(tk->id, ".TK") == 0 || strcmp(tk->id, ":TK") == 0) {
+                tmp = customtoken("<>", "<mvars>", 0);
+                lvl = level;
+                root = insert(root, tmp,  level++);
+                mvars(root->children[root->num_children-1], tklist);
+                level = lvl;
+            }
             return;
         } else {
             printerror(FUNC);
@@ -136,11 +235,21 @@ mvars(node_t* root, token_t** tokenlist) {
 }
 
 void
-expr(node_t* root, token_t** tokenlist) {
-    M(root, tokenlist);
+expr(node_t* root, token_t** tklist) {
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
+    tmp = customtoken("<>", "<M>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    M(root->children[root->num_children-1], tklist);
+
     if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
             strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
-        xhelp(root, tokenlist);
+        tmp = customtoken("<>", "<xhelp>", 0);
+        root = insert(root, tmp,  lvl++);
+        level = lvl;
+        xhelp(root->children[root->num_children-1], tklist);
         return;
     } else return;
 }
@@ -148,36 +257,77 @@ expr(node_t* root, token_t** tokenlist) {
 // this is not necessary to separate right now,
 // but it should help later
 void
-xhelp(node_t* root, token_t** tokenlist) {
+xhelp(node_t* root, token_t** tklist) {
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "+TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        expr(root, tokenlist);
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
+
         return;
     } else if (strcmp(tk->id, "-TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        expr(root, tokenlist);
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
+
         return;
     } else if (strcmp(tk->id, "/TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        expr(root, tokenlist);
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
+
         return;
     } else if (strcmp(tk->id, "*TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        expr(root, tokenlist);
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
+
         return;
     } else return;
 }
 
 void
-M(node_t* root, token_t** tokenlist) {
+M(node_t* root, token_t** tklist) {
     const char* FUNC = "M";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
             strcmp(tk->id, "intTK") == 0) {
-        R(root, tokenlist);
+
+        tmp = customtoken("<>", "<R>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        R(root->children[root->num_children-1], tklist);
+        
         return;
     } else if (strcmp(tk->id, "%TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        M(root, tokenlist);
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<M>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        M(root->children[root->num_children-1], tklist);
+
         return; 
     } else {
         printerror(FUNC);
@@ -186,23 +336,35 @@ M(node_t* root, token_t** tokenlist) {
 }
 
 void
-R(node_t* root, token_t** tokenlist) {
+R(node_t* root, token_t** tklist) {
     const char* FUNC = "R";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "(TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        expr(root, tokenlist);
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+
+        tmp = customtoken("<>", "<expr>", 0);
+        lvl = level;
+        root = insert(root, tmp,  level++);
+        expr(root->children[root->num_children-1], tklist);
+
         if (strcmp(tk->id, ")TK") == 0) {
-            tk = (token_t*) pop((void**) tokenlist); 
+            insert(root, tk, level++);
+            tk = (token_t*) pop((void**) tklist); 
             return;
         } else {
             printerror(FUNC);
             return;
         }
     } else if (strcmp(tk->id, "idTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else if (strcmp(tk->id, "intTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
         printerror(FUNC);
@@ -211,45 +373,96 @@ R(node_t* root, token_t** tokenlist) {
 }
 
 void
-stats(node_t* root, token_t** tokenlist) {
-    stat(root, tokenlist);
-    mstat(root, tokenlist);
+stats(node_t* root, token_t** tklist) {
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
+    tmp = customtoken("<>", "<stat>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    stat(root->children[root->num_children-1], tklist);
+    level = lvl;
+
+    if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
+        strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
+        strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
+        // there are more stats
+        tmp = customtoken("<>", "<mstat>", 0);
+        level = lvl;
+        root = insert(root, tmp,  level);
+        mstat(root->children[root->num_children-1], tklist);
+        level = lvl;
+    }
+
     return;
 }
 
 void
-mstat(node_t* root, token_t** tokenlist) {
+mstat(node_t* root, token_t** tklist) {
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
         strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
         strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
-        stat(root, tokenlist);
-        mstat(root, tokenlist);
+        // wow many stats  holy cow
+
+        tmp = customtoken("<>", "<stat>", 0);
+        level = lvl;
+        root = insert(root, tmp,  level);
+        stat(root->children[root->num_children-1], tklist);
+        level = lvl;
+
+        if (strcmp(tk->id, "readTK") == 0 || strcmp(tk->id, "printTK") == 0 ||
+            strcmp(tk->id, "iffTK") == 0 || strcmp(tk->id, "iterTK") == 0 ||
+            strcmp(tk->id, "letTK") == 0 || strcmp(tk->id, "startTK") == 0) {
+            // there are more stats
+            tmp = customtoken("<>", "<mstat>", 0);
+            level = lvl;
+            root = insert(root, tmp,  level);
+            mstat(root->children[root->num_children-1], tklist);
+        }
+
         return;
     } else return;
 }
 
 void
-stat(node_t* root, token_t** tokenlist) {
+stat(node_t* root, token_t** tklist) {
     const char* FUNC = "stat";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "readTK") == 0) {
-        in(root, tokenlist);
+        in(root, tklist);
         return;
     } else if (strcmp(tk->id, "printTK") == 0) {
-        out(root, tokenlist);
+        out(root, tklist);
         return;
     } else if (strcmp(tk->id, "startTK") == 0) {
-        block(root, tokenlist);
+
+        tmp = customtoken("<>", "<block>", 0);
+        insert(root, tmp,  lvl);
+        level = lvl;
+        block(root->children[root->num_children-1], tklist);
         return;
+
     } else if (strcmp(tk->id, "iffTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        iffandloop(root, tokenlist);
+
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+        iffandloop(root, tklist);
         return;
+
     } else if (strcmp(tk->id, "iterTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        iffandloop(root, tokenlist);
+
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+        iffandloop(root, tklist);
         return;
+
     } else if (strcmp(tk->id, "letTK") == 0) {
-        assign(root, tokenlist);
+        assign(root, tklist);
         return;
     } else {
         printerror(FUNC);
@@ -258,22 +471,25 @@ stat(node_t* root, token_t** tokenlist) {
 }
 
 void
-in(node_t* root, token_t** tokenlist) {
+in(node_t* root, token_t** tklist) {
     const char* FUNC = "in";
     if (strcmp(tk->id, "readTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
     if (strcmp(tk->id, "idTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
     if (strcmp(tk->id, ".TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
         printerror(FUNC);
@@ -282,17 +498,28 @@ in(node_t* root, token_t** tokenlist) {
 }
 
 void
-out(node_t* root, token_t** tokenlist) {
+out(node_t* root, token_t** tklist) {
     const char* FUNC = "out";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "printTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     } 
-    expr(root, tokenlist);
+
+    tmp = customtoken("<>", "<expr>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    expr(root->children[root->num_children-1], tklist);
+
+    level = lvl;
     if (strcmp(tk->id, ".TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
         printerror(FUNC);
@@ -301,58 +528,93 @@ out(node_t* root, token_t** tokenlist) {
 }
 
 void
-iffandloop(node_t* root, token_t** tokenlist) {
+iffandloop(node_t* root, token_t** tklist) {
     const char* FUNC = "iffandloop";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "(TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
 
-    expr(root, tokenlist);
-    RO(root, tokenlist);
-    expr(root, tokenlist);
+    tmp = customtoken("<>", "<expr>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    expr(root->children[root->num_children-1], tklist);
+    level = lvl;
+
+    tmp = customtoken("<>", "<RO>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    RO(root->children[root->num_children-1], tklist);
+    level = lvl;
+
+    tmp = customtoken("<>", "<expr>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    expr(root->children[root->num_children-1], tklist);
+    level = lvl;
 
     if (strcmp(tk->id, ")TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
 
-    stat(root, tokenlist);
+    tmp = customtoken("<>", "<stat>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    stat(root->children[root->num_children-1], tklist);
+    level = lvl;
+
     return;
 }
 
 void
-assign(node_t* root, token_t** tokenlist) {
+assign(node_t* root, token_t** tklist) {
     const char* FUNC = "assign";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "letTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     } 
     // check identifier
     if (strcmp(tk->id, "idTK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
     // check =
     if (strcmp(tk->id, "=TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
     } else {
         printerror(FUNC);
         return;
     }
 
-    expr(root, tokenlist);
+    tmp = customtoken("<>", "<expr>", 0);
+    lvl = level;
+    root = insert(root, tmp,  level++);
+    expr(root->children[root->num_children-1], tklist);
+    level = lvl;
 
     if (strcmp(tk->id, ".TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
         printerror(FUNC);
@@ -361,19 +623,49 @@ assign(node_t* root, token_t** tokenlist) {
 }
 
 void
-RO(node_t* root, token_t** tokenlist) {
+RO(node_t* root, token_t** tklist) {
     const char* FUNC = "RO";
+    token_t* tmp = (token_t*) malloc(sizeof(token_t));
+    int lvl = level;
+
     if (strcmp(tk->id, "<TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        lesshelp(root, tokenlist);
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+
+        if (strcmp(tk->id, "<TK") == 0) {
+            tmp = customtoken("<>", "<lesshelp>", 0);
+            lvl = level;
+            root = insert(root, tmp,  level++);
+            lesshelp(root->children[root->num_children-1], tklist);
+            level = lvl;
+        }
+
         return;
     } else if (strcmp(tk->id, ">TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        greathelp(root, tokenlist);
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+
+        if (strcmp(tk->id, ">TK") == 0) {
+            tmp = customtoken("<>", "<greathelp>", 0);
+            lvl = level;
+            root = insert(root, tmp,  level++);
+            greathelp(root->children[root->num_children-1], tklist);
+            level = lvl;
+        }
+
         return;
     } else if (strcmp(tk->id, "=TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
-        equalhelp(root, tokenlist);
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
+
+        if (strcmp(tk->id, "=TK") == 0) {
+            tmp = customtoken("<>", "<equalhelp>", 0);
+            lvl = level;
+            root = insert(root, tmp,  level++);
+            equalhelp(root->children[root->num_children-1], tklist);
+            level = lvl;
+        }
+
         return;
     } else {
         printerror(FUNC);
@@ -382,25 +674,28 @@ RO(node_t* root, token_t** tokenlist) {
 }
 
 void
-lesshelp(node_t* root, token_t** tokenlist) { 
+lesshelp(node_t* root, token_t** tklist) { 
     if (strcmp(tk->id, "<TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else return;
 }
 
 void
-greathelp(node_t* root, token_t** tokenlist) {
+greathelp(node_t* root, token_t** tklist) {
     if (strcmp(tk->id, ">TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else return;
 }
 
 void
-equalhelp(node_t* root, token_t** tokenlist) {
+equalhelp(node_t* root, token_t** tklist) {
     if (strcmp(tk->id, "=TK") == 0) {
-        tk = (token_t*) pop((void**) tokenlist); 
+        insert(root, tk, level++);
+        tk = (token_t*) pop((void**) tklist); 
         return;
     } else return;
 }

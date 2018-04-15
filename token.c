@@ -7,7 +7,7 @@
 
 // I know these first few aren't actually tokens.
 // Just so the indices match with enum STATE
-const char* TOKENS[] = {
+char* TOKENS[] = {
     "errorTK",
     "initialTK",
     "s1TK",
@@ -52,8 +52,8 @@ const char* TOKENS[] = {
 };
 
 // get the token indexed by state
-const char*
-gettoken(const enum STATE state)
+char*
+gettoken(enum STATE state)
 {
     return TOKENS[state];
 }
@@ -81,15 +81,43 @@ maketoken(token_t* token,
     return;
 }
 
+token_t*
+customtoken(char* id, char* string, int line)
+{
+    token_t* token = (token_t*) malloc(sizeof(token_t));
+    token->instance = (char*) malloc(256*sizeof(char));
+    strcpy(token->instance, string);
+    token->id = (char*) malloc(256*sizeof(char));
+    strcpy(token->id, id);
+    token->line_num = line;
+    return token;
+}
+
 void
-copytokenlist(token_t** dest, token_t** src)
+copytokenlist(token_t** dest, token_t** src, int n)
 {
     if (src == (token_t**)NULL)
         return;
-    // Copy original token list
-    dest = (token_t**) malloc(2048*sizeof(token_t*));
-    memcpy(dest, src, 2048*sizeof(token_t*));
+    int i;
+    for (i = 0; i < n; i++) {
+        // Copy original token list
+        dest[i] = (token_t*) malloc(sizeof(token_t));
+        copytoken(dest[i], src[i]);
+    }
 }
+
+void
+copytoken(token_t* dest, token_t* src)
+{
+    if (dest == (token_t*)NULL)
+        return;
+    dest->id = (char*) malloc(256*sizeof(char));
+    strcpy(dest->id, src->id);
+    dest->instance = (char*) malloc(256*sizeof(char));
+    strcpy(dest->instance, src->instance);
+    dest->line_num = src->line_num;
+}
+
 
 // display a list of tokens
 void
@@ -110,5 +138,5 @@ displaytokens(token_t** tokenlist, const int numtokens)
 void
 displaytoken(const token_t* t)
 {
-    printf("%s, %s, %d\n", t->id, t->instance, t->line_num);
+    printf("%s, \'%s\', %d\n", t->id, t->instance, t->line_num);
 }
