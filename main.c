@@ -53,13 +53,12 @@ main(int argc, char** argv)
     
     int n = 0;
     node_t* root = NULL;
-    // calls testscanner() function until EOF 
+    // calls parser() function until EOF 
     root = parser(root, tokenlist, tokencopy, filter, &n);
 
-    displaytokens(tokencopy, n);
-    // Plant the roots
 
-    //traversepreorder(rot);
+    traversepreorder(root);
+    printf("\n");
 
     // free fname if it was generated.
     if (!keyboardin) {

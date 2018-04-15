@@ -133,6 +133,7 @@ displaytokens(token_t** tokenlist, const int numtokens)
         displaytoken(t);
     }
     printf("========================\n");
+    printf("\n");
 }
 
 void
