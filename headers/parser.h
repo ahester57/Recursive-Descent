@@ -22,7 +22,8 @@ void assign(node_t* root, token_t**);
 void iffandloop(node_t* root, token_t**);
 void evaluate(node_t* root, token_t** tklist);
 void RO(node_t* root, token_t**);
-void nonterminal(void (*nonterminal)(node_t*,token_t**), char* name);
+void nonterminal(void (*nonterminal)(node_t*,token_t**),
+            char* name, node_t* root, token_t** tklist);
 void printerror(const char* FUNC);
 
 #endif

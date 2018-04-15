@@ -3,7 +3,7 @@ var x = 0 : y
  .
 var johnnybgoodybgood .
 start
-	iter ( x << 10 ) 
+	iff ( x << 10 ) 
 	start
 		let x = x + 1 .
 		let y = x .
