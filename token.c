@@ -1,3 +1,7 @@
+
+/* Austin Hester
+CS 4280 sp18
+C.Z. Janikow */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
