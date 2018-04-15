@@ -5,15 +5,17 @@
 #include "tree.h"
 #include "token.h"
 
+const int MAXCHILDREN = 6;
+
 node_t*
 initializenode (node_t* root, int len, int level)
 {
     root = (node_t*) malloc(sizeof(node_t));
     root->token = (token_t*) malloc(sizeof(token_t));
     root->depth = level;
-    root->children = (node_t**) malloc(sizeof(8*sizeof(node_t*)));
+    root->children = (node_t**) malloc(sizeof(MAXCHILDREN*sizeof(node_t*)));
     int i;
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < MAXCHILDREN; i++) {
         root->children[i] = (node_t*) malloc(sizeof(node_t));
         root->children[i] = NULL;
     }

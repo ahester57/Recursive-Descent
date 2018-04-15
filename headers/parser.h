@@ -22,9 +22,6 @@ void assign(node_t* root, token_t**);
 void iffandloop(node_t* root, token_t**);
 void evaluate(node_t* root, token_t** tklist);
 void RO(node_t* root, token_t**);
-void lesshelp(node_t* root, token_t**);
-void greathelp(node_t* root, token_t**);
-void equalhelp(node_t* root, token_t**);
 void printerror(const char* FUNC);
 
 #endif

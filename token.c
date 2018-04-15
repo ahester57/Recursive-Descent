@@ -80,7 +80,10 @@ maketoken(token_t* token,
           char* string,
           const int line)
 {
-    token->instance = (char*) malloc(256*sizeof(char));
+/*     int len = strlen(string);
+    if (len > 8)
+        string[8] = '\0'; */
+    token->instance = (char*) malloc(16*sizeof(char));
     strcpy(token->instance, string);
     token->id = gettoken(state);
     token->line_num = line;
@@ -90,10 +93,13 @@ maketoken(token_t* token,
 token_t*
 customtoken(char* id, char* string, int line)
 {
+/*     int len = strlen(string);
+    if (len > 8)
+        string[8] = '\0'; */
     token_t* token = (token_t*) malloc(sizeof(token_t));
-    token->instance = (char*) malloc(256*sizeof(char));
+    token->instance = (char*) malloc(16*sizeof(char));
     strcpy(token->instance, string);
-    token->id = (char*) malloc(256*sizeof(char));
+    token->id = (char*) malloc(16*sizeof(char));
     strcpy(token->id, id);
     token->line_num = line;
     return token;
@@ -117,9 +123,9 @@ copytoken(token_t* dest, token_t* src)
 {
     if (dest == (token_t*)NULL)
         return;
-    dest->id = (char*) malloc(256*sizeof(char));
+    dest->id = (char*) malloc(16*sizeof(char));
     strcpy(dest->id, src->id);
-    dest->instance = (char*) malloc(256*sizeof(char));
+    dest->instance = (char*) malloc(16*sizeof(char));
     strcpy(dest->instance, src->instance);
     dest->line_num = src->line_num;
 }

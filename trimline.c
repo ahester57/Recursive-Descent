@@ -34,8 +34,13 @@ trimline(char* dest, const char* src)
             c = src[++i];
             continue;
         }
+        if (buf[j-1] == '=' || buf[j-1] == '>' || buf[j-1] == '<') {
+            if (c != ' ')
+                buf[j++] = c;
+        } else {
+            buf[j++] = c;
+        }
 
-        buf[j++] = c;
         c = src[++i];
     }
 

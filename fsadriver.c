@@ -46,9 +46,9 @@ fsadriver(const wordlist_t* filter)
         while (state < IDENTIFIER)
         {
             nextstate = fsatable(state, nextchar);
-            fprintf(stderr, "state\t = %d\n", state);
-            fprintf(stderr, "string\t = .%s.\n", string);
-            fprintf(stderr, "next\t = %c,\n", nextchar);
+            //fprintf(stderr, "state\t = %d\n", state);
+            //fprintf(stderr, "string\t = .%s.\n", string);
+            //fprintf(stderr, "next\t = %c,\n", nextchar);
 
             // If there is an error
             if (nextstate == ERROR) {
@@ -88,7 +88,11 @@ fsadriver(const wordlist_t* filter)
                     state = whichkeyword(string);
                 }
 
-                maketoken(token, state, string, lastline);
+                char* cutstring = (char*) malloc(16*sizeof(char));
+                strncpy(cutstring, string, 8);
+                cutstring[8] = '\0';
+
+                maketoken(token, state, cutstring, lastline);
 
                 // this is needed for avoiding infinite loops in table
                 if (i < 1)

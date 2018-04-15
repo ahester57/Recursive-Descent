@@ -172,13 +172,20 @@ operatortable(const int state, const char nextchar)
                 break;
             }
             break;
+        // hmmm
         case THREE:
-            if (nextchar == '=') {
-                nextstate = EQUALSEQUALS;
-                break;
-            } else {
-                nextstate = EQUALS;
-                break;
+            // i handle the following tokens 
+            // using backtracking -> cut spaces
+            // in the original trim line
+            // no need for a look ahead
+            // or extra helper functions
+            switch (nextchar)
+            {
+                case '=':
+                    nextstate = EQUALSEQUALS;
+                    break;
+                default:
+                    nextstate = EQUALS;
             }
             break;
         case FOUR:

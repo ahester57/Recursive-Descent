@@ -1,7 +1,17 @@
 program
+var x = 0 : y
+ .
+var johnnybgoodybgood .
 start
-	iter ( 2 >> 2 ) 
-		start
-			read x .
-		stop
+	iter ( x << 10 ) 
+	start
+		let x = x + 1 .
+		let y = x .
+		print y .
+		print y .
+		print y .
+		print y .
+	stop
+	&var z = 2048 .&
+	print z .
 stop
