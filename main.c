@@ -49,17 +49,16 @@ main(int argc, char** argv)
 
     // Initialize the token list
     token_t** tokenlist = (token_t**) malloc(256*sizeof(token_t*));
-    token_t** tokencopy = (token_t**) malloc(256*sizeof(token_t*));
-    if (tokenlist == (token_t**)NULL || tokencopy == (token_t**)NULL) {
+    //token_t** tokencopy = (token_t**) malloc(256*sizeof(token_t*));
+    if (tokenlist == (token_t**)NULL ) {//|| tokencopy == (token_t**)NULL) {
         perror("Memory error");
         return 1;
     }
     
-    int n = 0;
+    int n = 0;  // num_tokens
     node_t* root = NULL;
     // calls parser() function until EOF 
-    root = parser(root, tokenlist, tokencopy, filter, &n);
-
+    root = parser(root, tokenlist, filter, &n);
 
     traversepreorder(root);
     printf("\n");
