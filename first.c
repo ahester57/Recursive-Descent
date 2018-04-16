@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "first.h"
 
+// return the first of <stats> and <stat>
 int
 first_stat(char* tkid)
 {

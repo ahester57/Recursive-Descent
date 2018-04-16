@@ -7,7 +7,6 @@ C.Z. Janikow */
 #include <string.h>
 #include "token.h"
 #include "states.h"
-#include "pop.h"
 
 // I know these first few aren't actually tokens.
 // Just so the indices match with enum STATE

@@ -23,7 +23,7 @@ static int level = 0;
 node_t*
 parser(node_t* root, token_t** tklist, wordlist_t* filter, int* n)
 {
-    // build token list
+    // build token list from filtered source
     int i;
     while (1)
     {
@@ -82,13 +82,20 @@ program(node_t* root, token_t** tklist) {
         return;
     }
 
+    // insert EOFtk
+    if (strcmp(tk->id, "EOFTK") == 0) {
+        insert(root, tk, level);
+    } else {
+        printerror(FUNC);
+        return;
+    }
+
     if (!error) {
         printf("PARSER\n");
         printf("OK\n");
     }
     return;
 }
-
 
 void
 block(node_t* root, token_t** tklist) {
@@ -500,6 +507,7 @@ RO(node_t* root, token_t** tklist) {
     // I deal with these using backtracking/ memoization
     // instead of lookahead. Check trimline.c
     // This is implemented in the preprocesser
+    // we don't need to lookahead anymore than we do
     if (strcmp(tk->id, "<TK") == 0) {
         insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 

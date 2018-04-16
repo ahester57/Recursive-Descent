@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "tree.h"
-#include "wordlist.h"
 #include "token.h"
 #include "treehelper.h"
 
@@ -32,6 +31,7 @@ insert (node_t* root, token_t* tk, int level)
         root = initializenode(root, len, level);
         addwordtonode(root, tk);
     } else {
+        // give birth
         int n = root->num_children;
         root->num_children++;
         root->children[n] = insert(root->children[n], tk, level);

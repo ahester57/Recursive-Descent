@@ -49,8 +49,7 @@ main(int argc, char** argv)
 
     // Initialize the token list
     token_t** tokenlist = (token_t**) malloc(256*sizeof(token_t*));
-    //token_t** tokencopy = (token_t**) malloc(256*sizeof(token_t*));
-    if (tokenlist == (token_t**)NULL ) {//|| tokencopy == (token_t**)NULL) {
+    if (tokenlist == (token_t**)NULL ) {
         perror("Memory error");
         return 1;
     }
@@ -61,7 +60,6 @@ main(int argc, char** argv)
     root = parser(root, tokenlist, filter, &n);
 
     traversepreorder(root);
-    printf("\n");
 
     // free fname if it was generated.
     if (!keyboardin) {

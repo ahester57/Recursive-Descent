@@ -8,8 +8,6 @@ struct node
 {
     token_t* token;
     int  depth;
-    node_t* left;
-    node_t* right;
     node_t** children;
     int num_children;
 };

@@ -35,18 +35,6 @@ addwordtonode (node_t* root, token_t* token)
 }
 
 void
-traverseinorder (node_t* root)
-{
-    if (root == NULL)
-        return;
-    int i;
-    for (i = 0; i < root->num_children; i++) {
-        traverseinorder(root->children[i]);
-        printnode(root);
-    }
-}
-
-void
 traversepreorder (node_t* root)
 {
     if (root == NULL)
@@ -57,16 +45,6 @@ traversepreorder (node_t* root)
     for (i = 0; i < root->num_children; i++) {
         traversepreorder(root->children[i]);
     }
-}
-
-void
-traversepostorder (node_t* root)
-{
-    if (root == NULL)
-        return;
-    traversepostorder(root->left);
-    traversepostorder(root->right);
-    printnode(root);
 }
 
 void

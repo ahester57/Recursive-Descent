@@ -3,3 +3,4 @@ var x = 2 .
 start
 	print 1.
 stop
+
