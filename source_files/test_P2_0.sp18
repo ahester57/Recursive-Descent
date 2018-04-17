@@ -1,4 +1,7 @@
 program
+var x = 1 .
+var y = 2 .
 start
-	print 1 .
+	let x = 5 * 3 .
+	print (1 + (%x)) .
 stop

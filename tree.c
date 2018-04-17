@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "tree.h"
+#include "node.h"
 #include "token.h"
 #include "treehelper.h"
 
@@ -24,11 +25,9 @@ insert (node_t* root, token_t* tk, int level)
     if (tk == (token_t*) NULL)
         return (node_t*) NULL;
 
-    int len = strlen(tk->instance);
-
     if (root == NULL) {
         // initialize a new node
-        root = initializenode(root, len, level);
+        root = initializenode(root, level);
         addwordtonode(root, tk);
     } else {
         // give birth

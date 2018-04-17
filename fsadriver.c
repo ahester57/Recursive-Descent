@@ -88,7 +88,7 @@ fsadriver(const wordlist_t* filter)
                 if (column == 0 && i != 0)
                     lastline--;
 
-
+                // Identifiers cannot begin with capital
                 if (nextstate == IDENTIFIER && isupper(string[0])) {
                     fprintf(stderr, "Error while parsing @ line ");
                     fprintf(stderr, "%d\n", line);

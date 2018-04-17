@@ -12,6 +12,7 @@ C.Z. Janikow */
 #include "token.h"
 #include "tree.h"
 #include "treehelper.h"
+#include "treetrim.h"
 #include "node.h"
 
 int
@@ -60,6 +61,11 @@ main(int argc, char** argv)
     root = parser(root, tokenlist, filter, &n);
 
     traversepreorder(root);
+
+    printf("\nTrimmed Tree:");
+    node_t* newroot = NULL;
+    newroot = treetrim(newroot, root);
+    traversepreorder(newroot);
 
     // free fname if it was generated.
     if (!keyboardin) {

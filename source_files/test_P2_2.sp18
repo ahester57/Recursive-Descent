@@ -1,5 +1,6 @@
 program
-var x = 2 : y : z .
+var x = 2 : y  : z .
+var w = 1 .
 start
-	print 1.
+	print (1).
 stop

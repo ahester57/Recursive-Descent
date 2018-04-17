@@ -12,7 +12,7 @@ C.Z. Janikow */
 const int MAXCHILDREN = 6;
 
 node_t*
-initializenode (node_t* root, int len, int level)
+initializenode (node_t* root, int level)
 {
     root = (node_t*) malloc(sizeof(node_t));
     root->token = (token_t*) malloc(sizeof(token_t));
@@ -39,6 +39,9 @@ traversepreorder (node_t* root)
 {
     if (root == NULL)
         return;
+    if (root->depth == 0)
+        printf("\n");
+
     printnode(root);
 
     int i;
