@@ -19,39 +19,6 @@ treetrim(node_t* newroot, node_t* root)
     return newroot;
 }
 
-int
-isextra(node_t* node, int extralevel)
-{
-    if (node->num_children > 1)
-        return 0;
-
-    if (node->num_children == 1) {
-        if (node->children[0]->num_children == 1) {
-            if (node->children[0]->children[0]->num_children == 1) {
-                return 3;
-            }
-        }
-    }
-    if (node->num_children == 1) {
-        if (node->children[0]->num_children == 1) {
-            return 2;
-        }
-    }
-
-
-/*     if (strcmp(node->token->id, "<>") == 0) {
-        if (strcmp(node->token->instance, "<M>") == 0) {
-            if (node->num_children == 1) 
-                return extralevel;
-        }
-        if (strcmp(node->token->instance, "<R>") == 0) {
-            if (node->num_children == 1) 
-                return extralevel;
-        }
-    } */
-    return 0; 
-}
-
 node_t*
 climbandtrim(node_t* newroot, node_t* root)
 {
@@ -75,31 +42,36 @@ climbandtrim(node_t* newroot, node_t* root)
 int
 isessential(node_t* node)
 {
-    if (strcmp(node->token->id, ".TK") == 0) {
+    if (node->essential) 
+        return 1;
+    
+    if (strcmp(node->token->id, ".TK") == 0) 
         return 0;
-    }
-    if (strcmp(node->token->id, ":TK") == 0) {
+
+    if (strcmp(node->token->id, ":TK") == 0) 
         return 0;
-    }
-    if (strcmp(node->token->id, "(TK") == 0) {
+
+    if (strcmp(node->token->id, "(TK") == 0) 
         return 0;
-    }
-    if (strcmp(node->token->id, ")TK") == 0) {
+    
+    if (strcmp(node->token->id, ")TK") == 0) 
         return 0;
-    }
-    if (iskeyword(node->token->instance)) {
+    if (iskeyword(node->token->instance)) 
         return 0;
-    }
-    if (strcmp(node->token->id, "EOFTK") == 0) {
+    
+    if (strcmp(node->token->id, "EOFTK") == 0) 
         return 0;
-    }
+    
     if (strcmp(node->token->id, "<>") == 0) {
         int i;
         for (i = 0; i < node->num_children; i++) {
-            if (isessential(node->children[i]))
+            if (isessential(node->children[i])) {
+                node->essential = 1;
                 return 1;
+            }
         }
         return 0;
     }
+    node->essential = 1;
     return 1;
 }

@@ -8,9 +8,7 @@ start
 		let x = x + 1 .
 		let y = x .
 		print y .
-		print y .
-		print y .
-		print y .
+
 	stop
 	&var z = 2048 .&
 	print z .

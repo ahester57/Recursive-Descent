@@ -24,6 +24,7 @@ initializenode (node_t* root, int level)
         root->children[i] = NULL;
     }
     root->num_children = 0;
+    root->essential = 0;
     return root;
 }
 

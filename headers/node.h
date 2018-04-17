@@ -10,6 +10,7 @@ struct node
     int  depth;
     node_t** children;
     int num_children;
+    int essential;
 };
 
 #endif

@@ -33,43 +33,46 @@ main(int argc, char** argv)
         fp = openinputfile(fname);
     }
     if (fp == (FILE*)NULL) {
+        fclose(fp);
         perror("Input error");
         return 1;
     }
-
-    // filter the file to get a wordlist_t
+    // filter the file line by line to get a wordlist_t
     wordlist_t* filter = filtersource(fp);
     fclose(fp);
     if (filter == (wordlist_t*)NULL) {
+        free(filter);
         perror("Filter error");
         return 1;
     }
-
-    // Display filtered source
+    // Display filtered wordlist
     displayfilter(filter);
-
     // Initialize the token list
     token_t** tokenlist = (token_t**) malloc(256*sizeof(token_t*));
     if (tokenlist == (token_t**)NULL ) {
+        free(tokenlist);
         perror("Memory error");
         return 1;
     }
-    
     int n = 0;  // num_tokens
     node_t* root = NULL;
     // calls parser() function until EOF 
     root = parser(root, tokenlist, filter, &n);
-
+    //Print the complete parse tree
+    printf("\nFull Tree:");
     traversepreorder(root);
-
-    printf("\nTrimmed Tree:");
+    // Trim the tree and print
     node_t* newroot = NULL;
     newroot = treetrim(newroot, root);
+    printf("\nTrimmed Tree:");
     traversepreorder(newroot);
-
+    // Free them
+    free(filter);
+    free(tokenlist);
+    free(root);
+    free(newroot);
     // free fname if it was generated.
-    if (!keyboardin) {
+    if (!keyboardin)
         free(fname);
-    }
     return 0;
 }
