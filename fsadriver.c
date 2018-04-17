@@ -5,6 +5,7 @@ C.Z. Janikow */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "fsadriver.h"
 #include "fsatable.h"
 #include "wordlist.h"
@@ -86,6 +87,14 @@ fsadriver(const wordlist_t* filter)
                 int lastline = line;
                 if (column == 0 && i != 0)
                     lastline--;
+
+
+                if (nextstate == IDENTIFIER && isupper(string[0])) {
+                    fprintf(stderr, "Error while parsing @ line ");
+                    fprintf(stderr, "%d\n", line);
+                    fprintf(stderr, "Identifiers cannot begin with Upper\n");
+                    return (token_t*)NULL;
+                }
 
                 // Check if keyword
                 if (iskeyword(string)) {
