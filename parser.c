@@ -166,8 +166,7 @@ vars(node_t* root, token_t** tklist) {
     }
 
     // check expression
-    if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
-            strcmp(tk->id, "intTK") == 0 || strcmp(tk->id, "%TK") == 0) {
+    if (first_expr(tk->id)) {
         // set it to an expr
         nonterminal(&expr, "<expr>", root, tklist);
     } else {
@@ -176,7 +175,7 @@ vars(node_t* root, token_t** tklist) {
     }
 
     // we have more vars
-    if (strcmp(tk->id, ".TK") == 0 || strcmp(tk->id, ":TK") == 0) {
+    if (first_mvars(tk->id)) {
         nonterminal(&mvars, "<mvars>", root, tklist);
     }
     return;
@@ -199,8 +198,7 @@ mvars(node_t* root, token_t** tklist) {
             insert(root, tk, level);
             tk = (token_t*) pop((void**) tklist); 
 
-            if (strcmp(tk->id, ".TK") == 0 || strcmp(tk->id, ":TK") == 0) {
-
+            if (first_mvars(tk->id)) {
                 nonterminal(&mvars, "<mvars>", root, tklist);
                 return;
             } else {
@@ -225,8 +223,7 @@ expr(node_t* root, token_t** tklist) {
     // Check M
     nonterminal(&M, "<M>", root, tklist);
 
-    if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
-        strcmp(tk->id, "*TK") == 0 || strcmp(tk->id, "/TK") == 0) {
+    if (first_xhelp(tk->id)) {
         // We need help
         nonterminal(&xhelp, "<xhelp>", root, tklist);
         return;
@@ -238,9 +235,7 @@ expr(node_t* root, token_t** tklist) {
 void
 xhelp(node_t* root, token_t** tklist) {
 
-    if (strcmp(tk->id, "+TK") == 0 || strcmp(tk->id, "-TK") == 0 ||
-        strcmp(tk->id, "/TK") == 0 || strcmp(tk->id, "*TK") == 0) {
-
+    if (first_xhelp(tk->id)) {
         insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
 
@@ -254,13 +249,10 @@ M(node_t* root, token_t** tklist) {
     const char* FUNC = "M";
 
     // M is a wonderful nonterminal
-    if (strcmp(tk->id, "(TK") == 0 || strcmp(tk->id, "idTK") == 0 ||
-            strcmp(tk->id, "intTK") == 0) {
-
+    if (first_R(tk->id)) {
         nonterminal(&R, "<R>", root, tklist);
         return;
-    } else if (strcmp(tk->id, "%TK") == 0) {
-
+    } else if (first_M(tk->id)) {
         insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
 
