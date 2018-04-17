@@ -278,13 +278,13 @@ R(node_t* root, token_t** tklist) {
 
     // So is R
     if (strcmp(tk->id, "(TK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
 
         nonterminal(&expr, "<expr>", root, tklist);
 
         if (strcmp(tk->id, ")TK") == 0) {
-            insert(root, tk, level++);
+            insert(root, tk, level);
             tk = (token_t*) pop((void**) tklist); 
             return;
         } else {
@@ -292,11 +292,11 @@ R(node_t* root, token_t** tklist) {
             return;
         }
     } else if (strcmp(tk->id, "idTK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
         return;
     } else if (strcmp(tk->id, "intTK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
@@ -381,7 +381,7 @@ in(node_t* root, token_t** tklist) {
     }
     // and .
     if (strcmp(tk->id, ".TK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
@@ -406,7 +406,7 @@ out(node_t* root, token_t** tklist) {
     nonterminal(&expr, "<expr>", root, tklist);
 
     if (strcmp(tk->id, ".TK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
@@ -447,7 +447,7 @@ assign(node_t* root, token_t** tklist) {
     nonterminal(&expr, "<expr>", root, tklist);
 
     if (strcmp(tk->id, ".TK") == 0) {
-        insert(root, tk, level++);
+        insert(root, tk, level);
         tk = (token_t*) pop((void**) tklist); 
         return;
     } else {
