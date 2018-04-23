@@ -17,11 +17,9 @@ buildglobalstack(node_t* root, stack_t* stack)
         local->varstack = (token_t**) malloc(256*sizeof(token_t*));
         local->nvars = 0;
         local->tos = -1;
-        if (checkundeclared(root, stack, local))
-            return 1;
-        return 0;
-    }
-
+        return buildlocalstack(root, stack, local, 1);
+    } 
+    
     if(strcmp(root->token->id, "idTK") == 0) {
         if (!isinstack(root->token, stack)) {
             // add this identifier to stack
@@ -44,25 +42,70 @@ buildglobalstack(node_t* root, stack_t* stack)
 
 
 int
-checkundeclared(node_t* root, stack_t* stack, stack_t* local)
+buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
 {
     if (root == NULL)
         return 0;
 
-    //i  
+    if(strcmp(root->token->instance, "<block>") == 0 &&
+        !first) {
+        stack_t* newlocal = (stack_t*) malloc(sizeof(stack_t));
+        newlocal->varstack = (token_t**) malloc(256*sizeof(token_t*));
+        newlocal->nvars = 0;
+        newlocal->tos = -1;
+        int j;
+        for (j = 0; j < local->nvars; j++) {
+           addtostack(local->varstack[j], newlocal);
+        }
+
+        printf("Num Vars = %d \n", newlocal->nvars);
+        int i;
+        for (i = 0; i < newlocal->nvars; i++) {
+            displaytoken(newlocal->varstack[i]);
+        } 
+        return buildlocalstack(root, stack, newlocal, 1);
+        
+    }
+
     if(strcmp(root->token->instance, "<vars>") == 0) {
-        //local = (stack_);
+        //buildglobalstack(root, local);
+    }
+
+    //i  
+    if(strcmp(root->token->instance, "<stats>") == 0 || 
+        strcmp(root->token->instance, "<stat>") == 0) {
+
+        //checksomething();
+
+    }
+
+    if(strcmp(root->token->id, "idTK") == 0) {
+        if (!isinstack(root->token, local)) {
+            // add this identifier to stack
+            addtostack(root->token, local);
+        } else {
+            // already defined
+            //return 1;
+        }
     }
 
     int ud;
     int i;
     for (i = 0; i < root->num_children; i++) {
-        ud = checkundeclared(root->children[i], stack, NULL);
+        ud = buildlocalstack(root->children[i], stack, local, 0);
         if (ud > 0)
             return ud;
     }
 
     return 0;
+}
+
+int checkundeclared(node_t* root, stack_t* stack)
+{
+    if (root == NULL)
+        return 0;
+    // @TODO
+    return 1;
 }
 
 void
