@@ -14,6 +14,7 @@ C.Z. Janikow */
 #include "treehelper.h"
 #include "treetrim.h"
 #include "node.h"
+#include "staticsem.h"
 
 int
 main(int argc, char** argv)
@@ -66,6 +67,17 @@ main(int argc, char** argv)
     newroot = treetrim(newroot, root);
     printf("\nTrimmed Tree:");
     traversepreorder(newroot);
+
+    // Static semantic analysis
+    int pass_static = analyzevars(newroot);
+
+    if (pass_static > 0)
+        printf("Pass static semantic check. OK\n");
+    else if (pass_static == 0)
+        printf("Fail static semantic check. FAIL\n");
+    else
+        fprintf(stderr, "Error while checking static semantics.");
+
     // Free them
     free(filter);
     free(tokenlist);
