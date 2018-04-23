@@ -73,9 +73,20 @@ main(int argc, char** argv)
 
     if (pass_static == 0)
         printf("Pass static semantic check. OK\n");
-    else if (pass_static > 0)
+    else if (pass_static > 0) {
         printf("Fail static semantic check. FAIL\n");
-    else
+        switch (pass_static)
+        {
+            case 1: 
+                printf("Variable already defined\n");
+                break;
+            case 2: 
+                printf("Variable not yet defined\n");
+                break;
+            default:
+                printf("Check yourself. No idea.\n");
+        }
+    } else
         fprintf(stderr, "Error while checking static semantics.");
 
     // Free them

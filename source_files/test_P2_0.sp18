@@ -2,6 +2,6 @@ program
 var x = 1 .
 var y = 2 .
 start
-	let x = 5 * 3 .
+	let y = 5 * 3 .
 	print (1 + (%x)) .
 stop

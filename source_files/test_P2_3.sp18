@@ -7,8 +7,10 @@ var a = 3 : h : q : u : o : n .
 start
 	var ii = 3 .
 	var ij = 3 .
+	var j = 1 .
 	start
+		var ij = 3 .
 		var l = 3 .
 	stop
-	print 1.
+	print l.
 stop

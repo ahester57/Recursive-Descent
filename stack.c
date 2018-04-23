@@ -81,11 +81,15 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
     }
 
     //i  
-    if(strcmp(root->token->instance, "<stats>") == 0 || 
-        strcmp(root->token->instance, "<stat>") == 0) {
+    if(strcmp(root->token->instance, "<in>") == 0 || 
+        strcmp(root->token->instance, "<out>") == 0 ||
+        strcmp(root->token->instance, "<iff>") == 0 ||
+        strcmp(root->token->instance, "<iter>") == 0 ||
+        strcmp(root->token->instance, "<assign>") == 0) {
 
-        //checksomething();
-
+        int u = checkundeclared(root, stack, local);
+        printf("U=%d\n", u);
+        return u;  
     }
 
     if(strcmp(root->token->id, "idTK") == 0) {
@@ -93,8 +97,8 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
             // add this identifier to stack
             addtostack(root->token, local);
         } else {
-            // already defined
-            //return 1;
+            // already defined, replace
+            addtostack(root->token, local);
         }
     }
 
@@ -109,12 +113,32 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
     return 0;
 }
 
-int checkundeclared(node_t* root, stack_t* stack)
+int
+checkundeclared(node_t* root, stack_t* stack, stack_t* local)
 {
     if (root == NULL)
         return 0;
+
     // @TODO
-    return 1;
+    if(strcmp(root->token->id, "idTK") == 0) {
+        if (!isinstack(root->token, local) &&
+            !isinstack(root->token, stack)) {
+            // variable undefined
+            fprintf(stderr, "var %s undefined: line %d\n",
+                                root->token->instance,
+                                root->token->line_num);
+            return 2;
+        }
+    }
+
+    int ud;
+    int i;
+    for (i = 0; i < root->num_children; i++) {
+        ud = checkundeclared(root->children[i], stack, local);
+        if (ud > 0)
+            return ud;
+    }
+    return 0;
 }
 
 void
