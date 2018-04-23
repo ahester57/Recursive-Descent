@@ -34,7 +34,6 @@ main(int argc, char** argv)
         fp = openinputfile(fname);
     }
     if (fp == (FILE*)NULL) {
-        fclose(fp);
         perror("Input error");
         return 1;
     }
@@ -72,8 +71,9 @@ main(int argc, char** argv)
     int pass_static = analyzevars(newroot);
 
     if (pass_static == 0)
-        printf("Pass static semantic check. OK\n");
+        printf("\nPass static semantic check. OK\n");
     else if (pass_static > 0) {
+        printf("********************************\n");
         printf("Fail static semantic check. FAIL\n");
         switch (pass_static)
         {
@@ -86,6 +86,7 @@ main(int argc, char** argv)
             default:
                 printf("Check yourself. No idea.\n");
         }
+        printf("********************************\n");
     } else
         fprintf(stderr, "Error while checking static semantics.");
 

@@ -12,5 +12,5 @@ start
 		var ij = 3 .
 		var l = 3 .
 	stop
-	print l.
+	print ij.
 stop

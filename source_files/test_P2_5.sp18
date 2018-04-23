@@ -10,6 +10,6 @@ start
 		print y .
 
 	stop
-	&var z = 2048 .&
+	var z = 2048 .
 	print z .
 stop

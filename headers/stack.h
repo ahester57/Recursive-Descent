@@ -11,7 +11,8 @@ typedef struct  {
 } stack_t;
 
 int buildglobalstack(node_t* root, stack_t* stack);
-int buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first);
+int buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
+                    int first, int numborrowed);
 int checkundeclared(node_t* root, stack_t* stack, stack_t* local);
 void addtostack(token_t* tk, stack_t* stack);
 int isinstack(token_t* tk, stack_t* stack);

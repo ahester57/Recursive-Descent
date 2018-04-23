@@ -24,15 +24,13 @@ analyzevars(node_t* root)
     //buildglobalstack(root, stack);
     int stk = buildglobalstack(root, stack);
 
-    if (stk > 0) {
-        fprintf(stderr, "stk = %d \n", stk);
+    if (stk > 0) 
         return stk;
-    }
 
-    printf("Num Vars = %d \n", stack->nvars);
+/*     printf("Num Vars = %d \n", stack->nvars);
     int i;
     for (i = 0; i < stack->nvars; i++) {
         displaytoken(stack->varstack[i]);
-    }
+    } */
     return 0;
 }

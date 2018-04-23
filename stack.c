@@ -6,27 +6,35 @@
 #include "node.h"
 #include "pop.h"
 
+// Build the global var stack
 int
 buildglobalstack(node_t* root, stack_t* stack)
 {
     if (root == NULL)
         return 0;
     
+    // If we enter a block
     if(strcmp(root->token->instance, "<block>") == 0) {
-        stack_t* local = (stack_t*) malloc(sizeof(stack_t));
-        local->varstack = (token_t**) malloc(256*sizeof(token_t*));
+        // Create a new local stack
+        stack_t* local = (stack_t*) malloc(4*sizeof(stack_t));
+        if (local == (stack_t*)NULL)
+            return -1;
+        local->varstack = (token_t**) malloc(128*sizeof(token_t*));
         local->nvars = 0;
         local->tos = -1;
-        int ls = buildlocalstack(root, stack, local, 1);
-
-        printf("Num Vars = %d \n", local->nvars);
+        // Build the local stack
+        // Also does checking for use of undefined vars
+        int ls = buildlocalstack(root, stack, local, 1, 0);
+/*         printf("Num Vars = %d \n", local->nvars);
         int i;
         for (i = 0; i < local->nvars; i++) {
             displaytoken(local->varstack[i]);
-        } 
+        }  */
+        free(local);
         return ls;        
     } 
     
+    // Add the new var
     if(strcmp(root->token->id, "idTK") == 0) {
         if (!isinstack(root->token, stack)) {
             // add this identifier to stack
@@ -49,82 +57,90 @@ buildglobalstack(node_t* root, stack_t* stack)
 
 
 int
-buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
+buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
+                int first, int numborrowed)
 {
     if (root == NULL)
         return 0;
 
+    if (root->token == NULL || root->token->instance == NULL) {
+        fprintf(stderr, "Memory error. Retry.\n");
+        return -1;
+    }
+
+    // If we enter an even deeper scope
     if(strcmp(root->token->instance, "<block>") == 0 &&
         !first) {
-            printf("nother block!\n;");
-        stack_t* newlocal = (stack_t*) malloc(sizeof(stack_t));
-        newlocal->varstack = (token_t**) malloc(256*sizeof(token_t*));
+            //printf("nother block!\n;");
+        // Create a new local stack
+        stack_t* newlocal = (stack_t*) malloc(4*sizeof(stack_t));
+        if (newlocal == (stack_t*)NULL)
+            return -1;
+        newlocal->varstack = (token_t**) malloc(128*sizeof(token_t*));
         newlocal->nvars = 0;
         newlocal->tos = -1;
+        // Add the current local stack
         int j;
         for (j = 0; j < local->nvars; j++) {
            addtostack(local->varstack[j], newlocal);
+           // Don't worry, `numborrowed` allows overwriting 
         }
-
-        int ls = buildlocalstack(root, stack, newlocal, 1);
-
-        printf("Num Vars = %d \n", newlocal->nvars);
-        int i;
-        for (i = 0; i < newlocal->nvars; i++) {
-            displaytoken(newlocal->varstack[i]);
-        } 
+        // Build the local stack
+        // Also does checking for use of undefined vars
+        int ls = buildlocalstack(root, stack, newlocal, 1, newlocal->nvars);
+        // Free the now useless stack
+        free(newlocal);
         return ls;        
     }
 
-    if(strcmp(root->token->instance, "<vars>") == 0) {
-        //buildglobalstack(root, local);
-    }
 
-    //i  
+
     if(strcmp(root->token->instance, "<in>") == 0 || 
         strcmp(root->token->instance, "<out>") == 0 ||
         strcmp(root->token->instance, "<iff>") == 0 ||
         strcmp(root->token->instance, "<iter>") == 0 ||
         strcmp(root->token->instance, "<assign>") == 0) {
-
+        // Check for the use of vars
         int u = checkundeclared(root, stack, local);
-        printf("U=%d\n", u);
         return u;  
     }
 
     if(strcmp(root->token->id, "idTK") == 0) {
-        if (!isinstack(root->token, local)) {
+        // Check if its been added in this scope already
+        if (!isinstack(root->token, local+numborrowed)) {
             // add this identifier to stack
             addtostack(root->token, local);
         } else {
             // already defined, replace
-            addtostack(root->token, local);
+            fprintf(stderr, "\nvar %s already defined: line %d\n",
+                                root->token->instance,
+                                root->token->line_num);
+            return 1; 
         }
     }
 
     int ud;
     int i;
     for (i = 0; i < root->num_children; i++) {
-        ud = buildlocalstack(root->children[i], stack, local, 0);
+        ud = buildlocalstack(root->children[i], stack, local, 0, numborrowed);
         if (ud > 0)
             return ud;
     }
-
     return 0;
 }
 
+// Check if variable is in either stack
 int
 checkundeclared(node_t* root, stack_t* stack, stack_t* local)
 {
     if (root == NULL)
         return 0;
 
-    // @TODO
     if(strcmp(root->token->id, "idTK") == 0) {
         if (!isinstack(root->token, local) &&
             !isinstack(root->token, stack)) {
             // variable undefined
-            fprintf(stderr, "var %s undefined: line %d\n",
+            fprintf(stderr, "\nvar %s undefined: line %d\n",
                                 root->token->instance,
                                 root->token->line_num);
             return 2;
@@ -141,6 +157,7 @@ checkundeclared(node_t* root, stack_t* stack, stack_t* local)
     return 0;
 }
 
+// Add given token to given stack
 void
 addtostack(token_t* tk, stack_t* stack)
 {
@@ -152,6 +169,8 @@ addtostack(token_t* tk, stack_t* stack)
     return;
 }
 
+// return 1 if tk is in stack
+// return 0 otherwise
 int
 isinstack(token_t* tk, stack_t* stack)
 {
