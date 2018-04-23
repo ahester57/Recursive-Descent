@@ -3,4 +3,5 @@
 *.code-workspace*
 scanner
 frontEnd
+statSem
 .vscode/*

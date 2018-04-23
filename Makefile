@@ -9,15 +9,15 @@ OBJECTS = $(patsubst %.c, %.o, ${SOURCES})
 
 default: all
 
-all: frontEnd
+all: statSem
 
 %.o: %.c $(DEPS)
 
-frontEnd: $(OBJECTS)
+statSem: $(OBJECTS)
 	gcc -o $@ $^ $(CFLAGS)
 
 clean:
 	$(RM) $(OBJECTS)
 
 destroy:
-	$(RM) $(OBJECTS) frontEnd
+	$(RM) $(OBJECTS) statSem
