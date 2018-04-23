@@ -17,7 +17,14 @@ buildglobalstack(node_t* root, stack_t* stack)
         local->varstack = (token_t**) malloc(256*sizeof(token_t*));
         local->nvars = 0;
         local->tos = -1;
-        return buildlocalstack(root, stack, local, 1);
+        int ls = buildlocalstack(root, stack, local, 1);
+
+        printf("Num Vars = %d \n", local->nvars);
+        int i;
+        for (i = 0; i < local->nvars; i++) {
+            displaytoken(local->varstack[i]);
+        } 
+        return ls;        
     } 
     
     if(strcmp(root->token->id, "idTK") == 0) {
@@ -49,6 +56,7 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
 
     if(strcmp(root->token->instance, "<block>") == 0 &&
         !first) {
+            printf("nother block!\n;");
         stack_t* newlocal = (stack_t*) malloc(sizeof(stack_t));
         newlocal->varstack = (token_t**) malloc(256*sizeof(token_t*));
         newlocal->nvars = 0;
@@ -58,13 +66,14 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local, int first)
            addtostack(local->varstack[j], newlocal);
         }
 
+        int ls = buildlocalstack(root, stack, newlocal, 1);
+
         printf("Num Vars = %d \n", newlocal->nvars);
         int i;
         for (i = 0; i < newlocal->nvars; i++) {
             displaytoken(newlocal->varstack[i]);
         } 
-        return buildlocalstack(root, stack, newlocal, 1);
-        
+        return ls;        
     }
 
     if(strcmp(root->token->instance, "<vars>") == 0) {
