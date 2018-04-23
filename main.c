@@ -71,9 +71,9 @@ main(int argc, char** argv)
     // Static semantic analysis
     int pass_static = analyzevars(newroot);
 
-    if (pass_static > 0)
+    if (pass_static == 0)
         printf("Pass static semantic check. OK\n");
-    else if (pass_static == 0)
+    else if (pass_static > 0)
         printf("Fail static semantic check. FAIL\n");
     else
         fprintf(stderr, "Error while checking static semantics.");

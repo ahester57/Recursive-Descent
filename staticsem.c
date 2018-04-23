@@ -22,12 +22,17 @@ analyzevars(node_t* root)
     stack->tos = -1;
 
     //buildglobalstack(root, stack);
-    buildglobalstack(root, stack);
+    int stk = buildglobalstack(root, stack);
+
+    if (stk > 0) {
+        fprintf(stderr, "stk = %d \n", stk);
+        return stk;
+    }
 
     printf("Num Vars = %d \n", stack->nvars);
     int i;
     for (i = 0; i < stack->nvars; i++) {
         displaytoken(stack->varstack[i]);
     }
-    return 1;
+    return 0;
 }

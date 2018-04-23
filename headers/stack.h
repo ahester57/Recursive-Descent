@@ -10,6 +10,9 @@ typedef struct  {
     int tos;
 } stack_t;
 
-void buildglobalstack(node_t* root, stack_t* stack);
+int buildglobalstack(node_t* root, stack_t* stack);
+int checkundeclared(node_t* root, stack_t* stack, stack_t* local);
+void addtostack(token_t* tk, stack_t* stack);
+int isinstack(token_t* tk, stack_t* stack);
 
 #endif

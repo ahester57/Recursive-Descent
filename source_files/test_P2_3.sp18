@@ -3,8 +3,8 @@ var zombie = 1 .
 var x = 2 : y .
 var w = 5 .
 var j = 1 .
-var a = 3 : s : q : u : o : n .
+var a = 3 : h : q : u : o : n .
 start
-	var y = 3 .
+	var ii = 3 .
 	print 1.
 stop
