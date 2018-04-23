@@ -1,6 +1,8 @@
 ### Recursive Descent Parser
 #### Austin Hester
-##### CS 4280 - P2
+##### CS 4280 - P3
+
+For static semantics, I am implementing global and local scopes.
 
 I am implementing option #3, that is an FSA table + table.
 
