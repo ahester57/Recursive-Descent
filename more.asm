@@ -1,22 +1,5 @@
+Error parsing var @ line 4.	[[ in function program ]]
 [BEGIN]: NOOP
 [BLOC0]: NOOP
-	LOAD 1
-	STORE T0
-	LOAD 1
-	STORE T1
-	LOAD T1
-	ADD T0
-	STORE T0
-	LOAD T0
-	MULT -1
-	STORE T0
-	LOAD T0
-	STORE x
-	LOAD x
-	STORE T2
-	WRITE T2
 	STOP
-	x 0
 	T0 0
-	T1 0
-	T2 0

@@ -1,7 +1,11 @@
 program
-var x = 1 .
-var y = 2 .
+var x = 3 .
+var w = 34 .
 start
-	let y = 5 * 3 .
+	var y .
+	let y = 5 * x .
+	print x .
+	print y .
+	print w .
 	print (1 + (%x)) .
 stop

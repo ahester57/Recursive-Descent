@@ -22,7 +22,7 @@ C.Z. Janikow */
     // buildlocalstack is the most complicated. 
     // it checks for variables in all of the parent stacks
     // as well as its own stack.
-    // It recursively calls itself recursively, recursively
+    // It recursively calls itself recursively, recursively,
     // if there is a block inside of a block. beware.
 
     Also note: justbuild*stack(...) are for code gen.

@@ -1,9 +1,7 @@
 program
 var zombie = 1 .
 var x = 2 : y .
-var w = 5 .
-var j = 1 .
-var a = 3 : h : q : u : o : n .
+var w .
 start
 	var ii = 3 .
 	var ij = 3 .

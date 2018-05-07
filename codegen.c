@@ -103,12 +103,12 @@ gen_block(node_t* root)
 			// build local stack
 			int l = justbuildlocalstack(root->children[0], localstacks[n]);
 			int i;
-		    for (i = 0; i < localstacks[n]->nvars; i++) {
-				fprintf(stderr, "%s 0\n", localstacks[n]->varstack[i]->instance);
-		    }
 
 			result = gen_vars(root->children[0]);
 			result = gen_stats(root->children[1]);
+		    for (i = 0; i < localstacks[n]->nvars; i++) {
+				fprintf(stderr, "%s 0\n", localstacks[n]->varstack[i]->instance);
+		    }
 			return result;
 		default:
 			return result;
@@ -117,13 +117,42 @@ gen_block(node_t* root)
 
 int gen_vars(node_t* root)
 {
+	int result = 0;
 	// ASSIGN VALUES TO VARS
-
+	switch(root->num_children)
+	{
+		case 1:
+			// there is no assign
+			return result;
+		case 3: ; 
+			// only one assign
+			result = gen_assign(root);
+			return result;
+		case 4: ;
+			result = gen_assign(root);
+			result = gen_mvars(root->children[3]);
+			return result;
+		default:
+			return 0;
+	}
 }
 
 int gen_mvars(node_t* root)
 {
 
+}
+
+int
+gen_assign(node_t* root)
+{
+
+			displaytoken(root->token);
+	node_t* id = root->children[0];
+	node_t* val = root->children[2];
+	int result = gen_expr(val);
+	fprintf(stderr, "\tLOAD T%d\n", result);		
+	fprintf(stderr, "\tSTORE %s\n", id->token->instance);
+	return result;
 }
 
 int
@@ -208,7 +237,7 @@ gen_M(node_t* root)
 			return result;
 		case 2:
 			// negate
-			result = -gen_M(root->children[1]);
+			result = gen_M(root->children[1]);
 			fprintf(stderr, "\tLOAD T%d\n", result);
 			fprintf(stderr, "\tMULT %d\n", -1);
 			fprintf(stderr, "\tSTORE T%d\n", result);
@@ -324,17 +353,6 @@ int gen_out(node_t* root)
 	return tvar;
 }
 
-int gen_assign(node_t* root)
-{
-
-			displaytoken(root->token);
-	node_t* id = root->children[0];
-	node_t* val = root->children[2];
-	int result = gen_expr(val);
-	fprintf(stderr, "\tLOAD T%d\n", result);		
-	fprintf(stderr, "\tSTORE %s\n", id->token->instance);
-	return result;
-}
 
 int gen_iff(node_t* root)
 {

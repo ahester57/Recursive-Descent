@@ -1,6 +1,6 @@
 program
-var x = 0 .
 start
+	var x = 0 .
 	let x = %(1 + 1).
 	print x .
 stop
