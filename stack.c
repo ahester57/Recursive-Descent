@@ -1,3 +1,6 @@
+/* Austin Hester
+CS 4280 sp18
+C.Z. Janikow */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,7 +9,30 @@
 #include "node.h"
 #include "pop.h"
 
+/*
+    There is so much recursion here that I would not 
+    recommend even looking at this unless you enjoy
+    hurting your brain.
+
+    Note: build*stack(...) are for static semantics.
+    They are quite complicated. buildglobalstack() either
+    directly and/or indirectly calls every function except
+    the functions that begin with 'just'
+
+    // buildlocalstack is the most complicated. 
+    // it checks for variables in all of the parent stacks
+    // as well as its own stack.
+    // It recursively calls itself recursively, recursively
+    // if there is a block inside of a block. beware.
+
+    Also note: justbuild*stack(...) are for code gen.
+    They make much more sense. What they do not do is go
+    deeper into each block or statement.
+
+*/
+
 // Build the global var stack
+// for static semantics
 int
 buildglobalstack(node_t* root, stack_t* stack)
 {
@@ -48,6 +74,7 @@ buildglobalstack(node_t* root, stack_t* stack)
     int stk;
     int i;
     for (i = 0; i < root->num_children; i++) {
+        // recursion
         stk = buildglobalstack(root->children[i], stack);
         if (stk > 0)
             return stk;
@@ -55,6 +82,7 @@ buildglobalstack(node_t* root, stack_t* stack)
     return 0;
 }
 
+// For code generation
 int
 justbuildglobalstack(node_t* root, stack_t* stack)
 {
@@ -83,6 +111,7 @@ justbuildglobalstack(node_t* root, stack_t* stack)
     int stk;
     int i;
     for (i = 0; i < root->num_children; i++) {
+        // recursion
         stk = justbuildglobalstack(root->children[i], stack);
         if (stk > 0)
             return stk;
@@ -127,6 +156,7 @@ justbuildlocalstack(node_t* root, stack_t* stack)
     int stk;
     int i;
     for (i = 0; i < root->num_children; i++) {
+        // recursion
         stk = justbuildlocalstack(root->children[i], stack);
         if (stk > 0)
             return stk;
@@ -165,6 +195,7 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
         }
         // Build the local stack
         // Also does checking for use of undefined vars
+        /* meta-recursion */
         int ls = buildlocalstack(root, stack, newlocal, 1, newlocal->nvars);
         int i;
         for (i = 0; i < newlocal->nvars; i++) {
@@ -175,14 +206,14 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
         return ls;        
     }
 
-
-
+    // Check to make sure variables are declared.
     if( strcmp(root->token->instance, "<in>") == 0 || 
         strcmp(root->token->instance, "<out>") == 0 ||
         strcmp(root->token->instance, "<iff>") == 0 ||
         strcmp(root->token->instance, "<iter>") == 0 ||
         strcmp(root->token->instance, "<assign>") == 0) {
         // Check for the use of vars
+        // call to recursive function
         int u = checkundeclared(root, stack, local);
         return u;  
     }
@@ -204,6 +235,7 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
     int ud;
     int i;
     for (i = 0; i < root->num_children; i++) {
+        // recursion
         ud = buildlocalstack(root->children[i], stack, local, 0, numborrowed);
         if (ud > 0)
             return ud;
@@ -232,6 +264,7 @@ checkundeclared(node_t* root, stack_t* stack, stack_t* local)
     int ud;
     int i;
     for (i = 0; i < root->num_children; i++) {
+        // recursion
         ud = checkundeclared(root->children[i], stack, local);
         if (ud > 0)
             return ud;
