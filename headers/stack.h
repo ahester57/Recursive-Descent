@@ -11,6 +11,8 @@ typedef struct  {
 } stack_t;
 
 int buildglobalstack(node_t* root, stack_t* stack);
+int justbuildglobalstack(node_t* root, stack_t* stack);
+int justbuildlocalstack(node_t* root, stack_t* stack);
 int buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
                     int first, int numborrowed);
 int checkundeclared(node_t* root, stack_t* stack, stack_t* local);

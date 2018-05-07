@@ -64,17 +64,19 @@ justbuildglobalstack(node_t* root, stack_t* stack)
     
     // If we enter a block
     if(strcmp(root->token->instance, "<block>") == 0) {
+            fprintf(stderr, "[BLOC:] SHIT\n");
         return 0;
     } 
     
     // Add the new var
     if(strcmp(root->token->id, "idTK") == 0) {
-        if (!isinstack(root->token, stack)) {
+        if (isinstack(root->token, stack) == -1) {
             // add this identifier to stack
             addtostack(root->token, stack);
-            fprintf(stderr, "[BLOC:] NOOP\n");
         } else {
             // already defined
+            //addtostack(root->token, stack);
+            fprintf(stderr, "[BLOC:] NOOP\n");
             return 1;
         }
     } 
@@ -82,7 +84,51 @@ justbuildglobalstack(node_t* root, stack_t* stack)
     int stk;
     int i;
     for (i = 0; i < root->num_children; i++) {
-        stk = buildglobalstack(root->children[i], stack);
+        stk = justbuildglobalstack(root->children[i], stack);
+        if (stk > 0)
+            return stk;
+    }
+    return 0;
+}
+
+int
+justbuildlocalstack(node_t* root, stack_t* stack)
+{
+    if (root == NULL)
+        return 0;
+    
+    // If we enter a block
+    if(strcmp(root->token->instance, "<block>") == 0) {
+            fprintf(stderr, "[BLOC:] SHIT\n");
+        return 0;
+    } 
+
+    if( strcmp(root->token->instance, "<in>") == 0 || 
+        strcmp(root->token->instance, "<out>") == 0 ||
+        strcmp(root->token->instance, "<iff>") == 0 ||
+        strcmp(root->token->instance, "<iter>") == 0 ||
+        strcmp(root->token->instance, "<assign>") == 0) {
+        // Check for the use of vars
+        return 1;  
+    }
+    
+    // Add the new var
+    if(strcmp(root->token->id, "idTK") == 0) {
+        if (isinstack(root->token, stack) == -1) {
+            // add this identifier to stack
+            addtostack(root->token, stack);
+        } else {
+            // already defined
+            //addtostack(root->token, stack);
+            fprintf(stderr, "[BLOC:] NOOP\n");
+            return 1;
+        }
+    } 
+
+    int stk;
+    int i;
+    for (i = 0; i < root->num_children; i++) {
+        stk = justbuildlocalstack(root->children[i], stack);
         if (stk > 0)
             return stk;
     }
@@ -218,5 +264,5 @@ isinstack(token_t* tk, stack_t* stack)
         if (strcmp(varname, t) == 0)
             return i;
     }
-    return 0;
+    return -1;
 }

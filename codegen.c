@@ -13,49 +13,106 @@ C.Z. Janikow */
 
 static int blockCount = 0;
 static int tempCount = 0;
+static int tempIndex = 0;
 
 static stack_t* globalstack;
 static stack_t** localstacks;
-static int tos = 0;
+static int tos[17];
+static int localStackCount = 0;
+
+int*
+isinoneofthesestacks(token_t* tk, int which_stacks[], int num_stacks)
+{
+	int result[2];
+	int i;
+	for (i = 0; i < num_stacks; i++) {
+		int r = isinstack(tk, localstacks[which_stacks[i]]);
+		if (r >= 0) {
+			result[0] = which_stacks[i];
+			result[1] = r;
+			return result;	
+		}
+	}
+	return NULL;
+}
 
 int
 gen_program(node_t* root)
 {
 	int result = 0;	
-    fprintf(stderr, "[BLOC:]BEGIN\n");
 	globalstack = (stack_t*) malloc(2*sizeof(stack_t));
 	globalstack->varstack = (token_t**) malloc(64*sizeof(token_t*));
 	int g = justbuildglobalstack(root->children[0], globalstack);
+	tos[0] = globalstack->nvars-1;	
+    fprintf(stderr, "[BLOC:] BEGIN2\n");
 
 	// if (g != 0) { uh oh }
 
     printf("Num Vars = %d \n", globalstack->nvars);
     int i;
     for (i = 0; i < globalstack->nvars; i++) {
-        displaytoken(globalstack->varstack[i]);
+        //displaytoken(globalstack->varstack[i]);
     } 
-	//localstacks = (stack_t**) malloc(16*sizeof(stack_t*));
+
+
+    fprintf(stderr, "[BEGIN:] NOOP\n");
+	localstacks = (stack_t**) malloc(16*sizeof(stack_t*));
 
 	switch(root->num_children)
 	{
 		case 1: ;
 			result = gen_block(root->children[0]);
 
-			return result;	
-
+			break;
 		case 2: ;
 			result = gen_vars(root->children[0]);
 			result = gen_block(root->children[1]);
-			return result;
+			break;
 		default:
-			return result;
+			break;
 	}
+
+	fprintf(stderr, "STOP\n");
+    for (i = 0; i < globalstack->nvars; i++) {
+		fprintf(stderr, "%s 0\n", globalstack->varstack[i]->instance);
+    }
+
+    for (i = 0; i < tempCount; i++) {
+		fprintf(stderr, "T%d 0\n", i);
+    }
+	return result;
 }
 
 int gen_block(node_t* root)
 {
+	int result = 0;
 	fprintf(stderr, "[BLOC%d:] NOOP\n", blockCount++);
+	switch(root->num_children)
+	{
+		case 1: ;
+			result = gen_stats(root->children[0]);
 
+			return result;	
+
+		case 2: ;
+			// build the local stack	
+			int n = localStackCount++;
+			localstacks[n] = (stack_t*) malloc(2*sizeof(stack_t));
+			localstacks[n]->varstack = (token_t**) malloc(64*sizeof(token_t*));
+
+			int l = justbuildlocalstack(root->children[0], localstacks[n]);
+			
+	int i;
+    for (i = 0; i < localstacks[n]->nvars; i++) {
+		fprintf(stderr, "%s 0\n", localstacks[n]->varstack[i]->instance);
+    }
+
+			result = gen_vars(root->children[0]);
+			result = gen_stats(root->children[1]);
+			return result;
+		default:
+			return result;
+	}
 }
 
 int gen_vars(node_t* root)
