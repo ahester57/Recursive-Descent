@@ -6,6 +6,7 @@
 
 typedef struct  {
     token_t** varstack;
+    int* varvalues;
     int nvars;
     int tos;
 } stack_t;

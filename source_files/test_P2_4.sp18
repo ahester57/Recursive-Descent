@@ -1,4 +1,6 @@
 program
+var x .
 start
 	read x .
+	print 1  .
 stop

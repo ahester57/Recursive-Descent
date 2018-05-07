@@ -32,7 +32,7 @@ int gen_assign(node_t* root);
 
 int gen_iff(node_t* root);
 
-int gen_loop(node_t* root);
+int gen_iter(node_t* root);
 
 int gen_evaluate(node_t* root);
 

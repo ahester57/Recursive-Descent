@@ -56,15 +56,15 @@ void
 displayfilter(wordlist_t* filter)
 {
     int i;
-    fprintf(stderr, "\nSource after filter and trim:\n");
-    fprintf(stderr, "NUM_LINES = %d\n", filter->length-1);
-    fprintf(stderr, "========================\n");
+    fprintf(stdout, "\nSource after filter and trim:\n");
+    fprintf(stdout, "NUM_LINES = %d\n", filter->length-1);
+    fprintf(stdout, "========================\n");
     for (i = 0; i < filter->length; i++) {
         if (filter->list[i] == NULL) {
-            fprintf(stderr, "%s\n", "EOF");
+            fprintf(stdout, "%s\n", "EOF");
             break;
         }
-        fprintf(stderr, "%s", filter->list[i]);
+        fprintf(stdout, "%s", filter->list[i]);
     }
-    fprintf(stderr, "========================\n\n");
+    fprintf(stdout, "========================\n\n");
 }
