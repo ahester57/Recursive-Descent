@@ -9,11 +9,11 @@ OBJECTS = $(patsubst %.c, %.o, ${SOURCES})
 
 default: all
 
-all: statSem
+all: comp
 
 %.o: %.c $(DEPS)
 
-statSem: $(OBJECTS)
+comp: $(OBJECTS)
 	gcc -o $@ $^ $(CFLAGS)
 
 clean:

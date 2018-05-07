@@ -47,7 +47,7 @@ gen_program(node_t* root)
 	globalstack = (stack_t*) malloc(2*sizeof(stack_t));
 
 
-    fprintf(stderr, "[BEGIN]: NOOP\n");
+    fprintf(stderr, "BEGIN: NOOP\n");
 	localstacks = (stack_t**) malloc(16*sizeof(stack_t*));
 
 	switch(root->num_children)
@@ -85,7 +85,7 @@ int
 gen_block(node_t* root)
 {
 	int result = 0;
-	fprintf(stderr, "[BLOC%d]: NOOP\n", blockCount++);
+	fprintf(stderr, "BLOC%d: NOOP\n", blockCount++);
 			displaytoken(root->token);
 	switch(root->num_children)
 	{
@@ -291,6 +291,7 @@ int gen_R(node_t* root)
 
 		return tempCount;
 	}
+	return 0;
 }
 
 int gen_stats(node_t* root)
@@ -407,6 +408,7 @@ int gen_iff(node_t* root)
 int gen_iter(node_t* root)
 {
 
+	return 0;
 }
 
 int gen_evaluate(node_t* root, int ifC)
@@ -430,7 +432,8 @@ int gen_evaluate(node_t* root, int ifC)
 			int left = gen_expr(root->children[0]);
 			fprintf(stderr, "\tLOAD T%d\n", left);
 			fprintf(stderr, "\tSUB T%d\n", right);
-			fprintf(stderr, "\tBRZNEG FOUT%d\n", ifC);
+
+			int result = gen_RO(root->children[1], ifC);
 
 			return result;
 		default:
@@ -439,9 +442,31 @@ int gen_evaluate(node_t* root, int ifC)
 
 }
 
-int gen_RO(node_t* root)
+int gen_RO(node_t* root, int ifC)
 {
-
+	token_t* tk = root->children[0]->token;
+	if (strcmp(tk->id, "<TK") == 0) {
+		fprintf(stderr, "\tBRZPOS FOUT%d\n", ifC);
+        return 0;
+    } else if (strcmp(tk->id, "<<TK") == 0) {
+		fprintf(stderr, "\tBRPOS FOUT%d\n", ifC);
+        return 0;
+    } else if (strcmp(tk->id, ">TK") == 0) {
+		fprintf(stderr, "\tBRZNEG FOUT%d\n", ifC);
+        return 0;
+    } else if (strcmp(tk->id, ">>TK") == 0) {
+		fprintf(stderr, "\tBRNEG FOUT%d\n", ifC);
+        return 0;
+    } else if (strcmp(tk->id, "=TK") == 0) {
+		fprintf(stderr, "\tBRZERO FOUT%d\n", ifC);
+        return 0;
+    } else if (strcmp(tk->id, "==TK") == 0) {
+		fprintf(stderr, "\tBRNEG FOUT%d\n", ifC);
+		fprintf(stderr, "\tBRPOS FOUT%d\n", ifC);
+        return 0;
+    } else {
+        return 0;
+    }
 }
 
 

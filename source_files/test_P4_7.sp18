@@ -2,6 +2,6 @@ program
 var x = 0 .
 start
 	read x .
-	iff (x > 0)
+	iff (x >> 0)
 		print x .
 stop

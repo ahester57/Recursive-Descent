@@ -36,6 +36,6 @@ int gen_iter(node_t* root);
 
 int gen_evaluate(node_t* root, int ifC);
 
-int gen_RO(node_t* root);
+int gen_RO(node_t* root, int ifC);
 
 #endif
