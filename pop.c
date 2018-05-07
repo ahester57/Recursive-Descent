@@ -7,8 +7,8 @@ C.Z. Janikow */
 
 void*
 pop(void** list) {
-    int i = 0;;
-    void* temp = list[i];
+    int i;
+    void* temp = list[0];
     for (i = 0; i < 2048; i++) {
         if (list[i+1] == (void*)NULL)
             break;

@@ -15,6 +15,7 @@ C.Z. Janikow */
 #include "treetrim.h"
 #include "node.h"
 #include "staticsem.h"
+#include "codegen.h"
 
 int
 main(int argc, char** argv)
@@ -68,7 +69,8 @@ main(int argc, char** argv)
     traversepreorder(newroot);
 
     // Static semantic analysis
-    int pass_static = analyzevars(newroot);
+    //int pass_static = staticsem(newroot);
+    int pass_static = 0;
 
     if (pass_static == 0)
         printf("\nPass static semantic check. OK\n");
@@ -87,8 +89,14 @@ main(int argc, char** argv)
                 printf("Check yourself. No idea.\n");
         }
         printf("********************************\n");
-    } else
+        return -1;
+    } else {
         fprintf(stderr, "Error while checking static semantics.");
+        return -1;
+    }
+
+    // Passed static semantics
+    gen_program(newroot);
 
     // Free them
     free(filter);

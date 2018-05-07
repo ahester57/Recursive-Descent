@@ -3,6 +3,6 @@
 #include "node.h"
 #include "stack.h"
 
-int analyzevars(node_t* root);
+int staticsem(node_t* root);
 
 #endif

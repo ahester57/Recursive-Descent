@@ -16,6 +16,7 @@ buildglobalstack(node_t* root, stack_t* stack)
     // If we enter a block
     if(strcmp(root->token->instance, "<block>") == 0) {
         // Create a new local stack
+        return 0;
         stack_t* local = (stack_t*) malloc(4*sizeof(stack_t));
         if (local == (stack_t*)NULL)
             return -1;
@@ -25,11 +26,11 @@ buildglobalstack(node_t* root, stack_t* stack)
         // Build the local stack
         // Also does checking for use of undefined vars
         int ls = buildlocalstack(root, stack, local, 1, 0);
-/*         printf("Num Vars = %d \n", local->nvars);
+         printf("Num Vars = %d \n", local->nvars);
         int i;
         for (i = 0; i < local->nvars; i++) {
             displaytoken(local->varstack[i]);
-        }  */
+        }  
         free(local);
         return ls;        
     } 
@@ -55,6 +56,38 @@ buildglobalstack(node_t* root, stack_t* stack)
     return 0;
 }
 
+int
+justbuildglobalstack(node_t* root, stack_t* stack)
+{
+    if (root == NULL)
+        return 0;
+    
+    // If we enter a block
+    if(strcmp(root->token->instance, "<block>") == 0) {
+        return 0;
+    } 
+    
+    // Add the new var
+    if(strcmp(root->token->id, "idTK") == 0) {
+        if (!isinstack(root->token, stack)) {
+            // add this identifier to stack
+            addtostack(root->token, stack);
+            fprintf(stderr, "[BLOC:] NOOP\n");
+        } else {
+            // already defined
+            return 1;
+        }
+    } 
+
+    int stk;
+    int i;
+    for (i = 0; i < root->num_children; i++) {
+        stk = buildglobalstack(root->children[i], stack);
+        if (stk > 0)
+            return stk;
+    }
+    return 0;
+}
 
 int
 buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
@@ -88,6 +121,10 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
         // Build the local stack
         // Also does checking for use of undefined vars
         int ls = buildlocalstack(root, stack, newlocal, 1, newlocal->nvars);
+        int i;
+        for (i = 0; i < newlocal->nvars; i++) {
+            displaytoken(newlocal->varstack[i]);
+        }  
         // Free the now useless stack
         free(newlocal);
         return ls;        
@@ -95,7 +132,7 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
 
 
 
-    if(strcmp(root->token->instance, "<in>") == 0 || 
+    if( strcmp(root->token->instance, "<in>") == 0 || 
         strcmp(root->token->instance, "<out>") == 0 ||
         strcmp(root->token->instance, "<iff>") == 0 ||
         strcmp(root->token->instance, "<iter>") == 0 ||
@@ -179,7 +216,7 @@ isinstack(token_t* tk, stack_t* stack)
     for (i = 0; i < stack->nvars; i++) {
         const char* t = stack->varstack[i]->instance;
         if (strcmp(varname, t) == 0)
-            return 1;
+            return i;
     }
     return 0;
 }
