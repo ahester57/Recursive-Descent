@@ -69,8 +69,8 @@ main(int argc, char** argv)
     traversepreorder(newroot);
 
     // Static semantic analysis
-    //int pass_static = staticsem(newroot);
-    int pass_static = 0;
+    //int pass_static = 0;
+    int pass_static = staticsem(newroot);
 
     if (pass_static == 0)
         printf("\nPass static semantic check. OK\n");

@@ -27,10 +27,10 @@ staticsem(node_t* root)
     if (stk > 0) 
         return stk;
 
-/*    printf("Num Vars = %d \n", stack->nvars);
+    printf("Num Vars = %d \n", stack->nvars);
     int i;
     for (i = 0; i < stack->nvars; i++) {
         displaytoken(stack->varstack[i]);
     } 
-*/    return 0;
+    return 0;
 }

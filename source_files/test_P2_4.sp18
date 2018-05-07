@@ -2,5 +2,5 @@ program
 var x .
 start
 	read x .
-	print x + 1  .
+	print y + 1  .
 stop

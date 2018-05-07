@@ -16,7 +16,6 @@ buildglobalstack(node_t* root, stack_t* stack)
     // If we enter a block
     if(strcmp(root->token->instance, "<block>") == 0) {
         // Create a new local stack
-        return 0;
         stack_t* local = (stack_t*) malloc(4*sizeof(stack_t));
         if (local == (stack_t*)NULL)
             return -1;
@@ -37,7 +36,7 @@ buildglobalstack(node_t* root, stack_t* stack)
     
     // Add the new var
     if(strcmp(root->token->id, "idTK") == 0) {
-        if (!isinstack(root->token, stack)) {
+        if (isinstack(root->token, stack) == -1) {
             // add this identifier to stack
             addtostack(root->token, stack);
         } else {
@@ -190,7 +189,7 @@ buildlocalstack(node_t* root, stack_t* stack, stack_t* local,
 
     if(strcmp(root->token->id, "idTK") == 0) {
         // Check if its been added in this scope already
-        if (!isinstack(root->token, local+numborrowed)) {
+        if (isinstack(root->token, local+numborrowed) == -1) {
             // add this identifier to stack
             addtostack(root->token, local);
         } else {
@@ -220,8 +219,8 @@ checkundeclared(node_t* root, stack_t* stack, stack_t* local)
         return 0;
 
     if(strcmp(root->token->id, "idTK") == 0) {
-        if (!isinstack(root->token, local) &&
-            !isinstack(root->token, stack)) {
+        if (isinstack(root->token, local) == -1 &&
+            isinstack(root->token, stack) == -1) {
             // variable undefined
             fprintf(stderr, "\nvar %s undefined: line %d\n",
                                 root->token->instance,
