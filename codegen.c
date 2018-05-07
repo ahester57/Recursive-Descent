@@ -79,10 +79,12 @@ gen_program(node_t* root)
 	return result;
 }
 
-int gen_block(node_t* root)
+int
+gen_block(node_t* root)
 {
 	int result = 0;
 	fprintf(stderr, "[BLOC%d]: NOOP\n", blockCount++);
+			displaytoken(root->token);
 	switch(root->num_children)
 	{
 		case 1: ;
@@ -139,9 +141,9 @@ gen_expr(node_t* root)
 			int t0 = gen_xhelp(root->children[1]);
 			//
 			// store in T0
-			fprintf(stderr, "\tLOAD %d\n", t0);
+			//fprintf(stderr, "\tLOAD %d\n", t0);
 			int t0_i = tempCount++;
-			fprintf(stderr, "\tSTORE T%d\n", t0_i);
+			//fprintf(stderr, "\tSTORE T%d\n", t0_i);
 			// cal left 
 			int t1 = gen_M(root->children[0]);
 			//if +
@@ -175,7 +177,6 @@ gen_expr(node_t* root)
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
 				result = t1 / t0;
 			}
-			tempCount = 0;
 			return t0_i;
 		default:
 			return t0_i;
@@ -184,10 +185,11 @@ gen_expr(node_t* root)
 
 int gen_xhelp(node_t* root)
 {
-
+	return 0;
 }
 
-int gen_M(node_t* root)
+int
+gen_M(node_t* root)
 {
 	int result;
 	switch(root->num_children)
@@ -212,7 +214,9 @@ int gen_R(node_t* root)
 	if (strcmp(tkid, "<>") == 0) {
 
 	} else if (strcmp(tkid, "idTK") == 0) {
-		fprintf(stderr, "\t%s\n", "ddk");
+		fprintf(stderr, "\tLOAD %s\n", child->token->instance);
+		fprintf(stderr, "\tSTORE T%d\n", tempCount++);
+		return tempCount-1;
 	} else if (strcmp(tkid, "intTK") == 0) {
 		displaytoken(child->token);
 		fprintf(stderr, "\tLOAD %d\n", atoi(child->token->instance));
@@ -225,6 +229,7 @@ int gen_R(node_t* root)
 int gen_stats(node_t* root)
 {
 	int result;
+			//displaytoken(root->token);
 	switch(root->num_children)
 	{
 		case 1:
@@ -244,6 +249,7 @@ int gen_stats(node_t* root)
 int gen_mstat(node_t* root)
 {
 	int result;
+			displaytoken(root->token);
 	switch(root->num_children)
 	{
 		case 1:
@@ -263,6 +269,7 @@ int gen_mstat(node_t* root)
 int gen_stat(node_t* root)
 {
 	int result = 0;
+			//displaytoken(root->token);
 	node_t* child = root->children[0];		
 	token_t* tk = child->token;
 	if (strcmp(tk->instance, "<in>") == 0) {
@@ -271,16 +278,16 @@ int gen_stat(node_t* root)
     } else if (strcmp(tk->instance, "<out>") == 0) {
         result = gen_out(child);
         return result;
-    } else if (strcmp(tk->id, "<block>") == 0) {
+    } else if (strcmp(tk->instance, "<block>") == 0) {
         result = gen_block(child);
         return result;
-    } else if (strcmp(tk->id, "<iff>") == 0) {
+    } else if (strcmp(tk->instance, "<iff>") == 0) {
         result = gen_iff(child);
         return result;
-    } else if (strcmp(tk->id, "<iter>") == 0) {
+    } else if (strcmp(tk->instance, "<iter>") == 0) {
         result = gen_iter(child);
         return result;
-    } else if (strcmp(tk->id, "<assign>") == 0) {
+    } else if (strcmp(tk->instance, "<assign>") == 0) {
         result = gen_assign(child);
         return result;
     } else {
