@@ -56,6 +56,7 @@ isessential(node_t* node)
     
     if (strcmp(node->token->id, ")TK") == 0) 
         return 0;
+    
     if (iskeyword(node->token->instance)) 
         return 0;
     

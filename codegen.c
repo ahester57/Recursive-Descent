@@ -327,6 +327,13 @@ int gen_out(node_t* root)
 int gen_assign(node_t* root)
 {
 
+			displaytoken(root->token);
+	node_t* id = root->children[0];
+	node_t* val = root->children[2];
+	int result = gen_expr(val);
+	fprintf(stderr, "\tLOAD T%d\n", result);		
+	fprintf(stderr, "\tSTORE %s\n", id->token->instance);
+	return result;
 }
 
 int gen_iff(node_t* root)
