@@ -1,0 +1,11 @@
+program
+start
+	print 1 .
+	start
+		print 1.
+		start
+			print 1 .
+		stop
+		print 1 .
+	stop
+stop

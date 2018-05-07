@@ -144,6 +144,7 @@ gen_expr(node_t* root)
 			// store in T0
 			//fprintf(stderr, "\tLOAD %d\n", t0);
 			int t0_i = tempCount++;
+			t0_i = t0;
 			//fprintf(stderr, "\tSTORE T%d\n", t0_i);
 			// cal left 
 			int t1 = gen_M(root->children[0]);
@@ -177,7 +178,8 @@ gen_expr(node_t* root)
 				fprintf(stderr, "\tLOAD T%d\n", t1);
 				fprintf(stderr, "\tDIV T%d\n", t0_i);
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
-				result = t1 / t0;
+				//result = (int)(t1 / t0);
+				result = 1;
 			}
 			return t0_i;
 		default:
@@ -219,7 +221,8 @@ int gen_R(node_t* root)
 			displaytoken(root->token);
 	char* tkid = child->token->id;
 	if (strcmp(tkid, "<>") == 0) {
-
+		int res = gen_expr(root->children[0]);
+		return res;
 	} else if (strcmp(tkid, "idTK") == 0) {
 		fprintf(stderr, "\tLOAD %s\n", child->token->instance);
 		fprintf(stderr, "\tSTORE T%d\n", tempCount);

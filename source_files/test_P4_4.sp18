@@ -1,0 +1,4 @@
+program
+start
+	print % % % 5 .
+stop

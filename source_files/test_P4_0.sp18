@@ -1,0 +1,4 @@
+program
+start
+	print 11 .
+stop
