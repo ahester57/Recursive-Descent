@@ -73,7 +73,7 @@ gen_program(node_t* root)
 		fprintf(stderr, "\t%s 0\n", globalstack->varstack[i]->instance);
     }
 
-    for (i = 0; i < tempCount; i++) {
+    for (i = 0; i < tempCount+1; i++) {
 		fprintf(stderr, "\tT%d 0\n", i);
     }
 	return result;
@@ -130,6 +130,7 @@ int
 gen_expr(node_t* root)
 {
 	int result = 0;
+			displaytoken(root->token);
 	switch(root->num_children)
 	{
 		case 1:
@@ -146,10 +147,11 @@ gen_expr(node_t* root)
 			//fprintf(stderr, "\tSTORE T%d\n", t0_i);
 			// cal left 
 			int t1 = gen_M(root->children[0]);
+			tempCount++;
 			//if +
 			if (strcmp(root->children[1]->children[0]->token->id,
 					   "+TK") == 0) {
-				fprintf(stderr, "\tLOAD %d\n", t1);
+				fprintf(stderr, "\tLOAD T%d\n", t1);
 				fprintf(stderr, "\tADD T%d\n", t0_i);
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
 				result = t1 + t0;
@@ -157,7 +159,7 @@ gen_expr(node_t* root)
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "-TK") == 0) {
 				//else -
-				fprintf(stderr, "\tLOAD %d\n", t1);
+				fprintf(stderr, "\tLOAD T%d\n", t1);
 				fprintf(stderr, "\tSUB T%d\n", t0_i);
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
 				result = t1 - t0;
@@ -165,14 +167,14 @@ gen_expr(node_t* root)
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "*TK") == 0) {
 				//else *
-				fprintf(stderr, "\tLOAD %d\n", t1);
+				fprintf(stderr, "\tLOAD T%d\n", t1);
 				fprintf(stderr, "\tMULT T%d\n", t0_i);
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
 				result = t1 * t0;
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "/TK") == 0) {
 				//else /
-				fprintf(stderr, "\tLOAD %d\n", t1);
+				fprintf(stderr, "\tLOAD T%d\n", t1);
 				fprintf(stderr, "\tDIV T%d\n", t0_i);
 				fprintf(stderr, "\tSTORE T%d\n", t0_i);
 				result = t1 / t0;
@@ -186,6 +188,8 @@ gen_expr(node_t* root)
 int gen_xhelp(node_t* root)
 {
 	// THIS FIRSTSTSTSTSTSTSTST
+			displaytoken(root->token);
+	int result = gen_expr(root->children[1]);
 	return 0;
 }
 
@@ -193,6 +197,7 @@ int
 gen_M(node_t* root)
 {
 	int result;
+			displaytoken(root->token);
 	switch(root->num_children)
 	{
 		case 1:
@@ -211,19 +216,20 @@ gen_M(node_t* root)
 int gen_R(node_t* root)
 {
 	node_t* child = root->children[0];
+			displaytoken(root->token);
 	char* tkid = child->token->id;
 	if (strcmp(tkid, "<>") == 0) {
 
 	} else if (strcmp(tkid, "idTK") == 0) {
 		fprintf(stderr, "\tLOAD %s\n", child->token->instance);
-		fprintf(stderr, "\tSTORE T%d\n", tempCount++);
-		return tempCount-1;
+		fprintf(stderr, "\tSTORE T%d\n", tempCount);
+		return tempCount;
 	} else if (strcmp(tkid, "intTK") == 0) {
 		displaytoken(child->token);
 		fprintf(stderr, "\tLOAD %d\n", atoi(child->token->instance));
-		fprintf(stderr, "\tSTORE T%d\n", tempCount++);
+		fprintf(stderr, "\tSTORE T%d\n", tempCount);
 
-		return tempCount-1;
+		return tempCount;
 	}
 }
 
@@ -307,6 +313,7 @@ int gen_in(node_t* root)
 
 int gen_out(node_t* root)
 {
+			displaytoken(root->token);
 	int tvar = gen_expr(root->children[0]);
 	fprintf(stderr, "\tWRITE T%d\n", tvar);	
 	return tvar;
