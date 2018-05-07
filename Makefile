@@ -20,4 +20,4 @@ clean:
 	$(RM) $(OBJECTS)
 
 destroy:
-	$(RM) $(OBJECTS) statSem
+	$(RM) $(OBJECTS) statSem comp

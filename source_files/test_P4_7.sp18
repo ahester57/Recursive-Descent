@@ -2,6 +2,9 @@ program
 var x = 0 .
 start
 	read x .
-	iff (x >> 0)
+	iter (x > 0)
+	start
 		print x .
+		let x = x - 1.
+	stop
 stop

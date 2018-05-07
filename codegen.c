@@ -391,7 +391,7 @@ int gen_iff(node_t* root)
 			return result;
 		case 2: ;
 			int ifC = iffCount++;
-			result = gen_evaluate(root->children[0], ifC);
+			result = gen_evaluate(root->children[0], "FOUT", ifC);
 /*			fprintf(stderr, "\tLOAD T%d\n", result);
 			fprintf(stderr, "\tMULT %d\n", -1);
 			fprintf(stderr, "\tSTORE T%d\n", result);
@@ -402,16 +402,36 @@ int gen_iff(node_t* root)
 		default:
 			return 0;
 	}
-
+	return 0;
 }
 
 int gen_iter(node_t* root)
 {
-
+	int result = 0;
+	switch(root->num_children)
+	{
+		case 1:
+			// wrong
+			return result;
+		case 2: ;
+			int itC = iterCount++;
+			fprintf(stderr, "LIN%d: NOOP\n", itC);
+			result = gen_evaluate(root->children[0], "LOUT", itC);
+/*			fprintf(stderr, "\tLOAD T%d\n", result);
+			fprintf(stderr, "\tMULT %d\n", -1);
+			fprintf(stderr, "\tSTORE T%d\n", result);
+*/
+			result = gen_stat(root->children[1]);
+			fprintf(stderr, "\tBR LIN%d\n", itC);
+			fprintf(stderr, "LOUT%d: NOOP\n", itC);
+			return result;
+		default:
+			return 0;
+	}
 	return 0;
 }
 
-int gen_evaluate(node_t* root, int ifC)
+int gen_evaluate(node_t* root, char* label, int ifC)
 {
 	int result = 0;
 	switch(root->num_children)
@@ -433,7 +453,7 @@ int gen_evaluate(node_t* root, int ifC)
 			fprintf(stderr, "\tLOAD T%d\n", left);
 			fprintf(stderr, "\tSUB T%d\n", right);
 
-			int result = gen_RO(root->children[1], ifC);
+			int result = gen_RO(root->children[1], label, ifC);
 
 			return result;
 		default:
@@ -442,17 +462,17 @@ int gen_evaluate(node_t* root, int ifC)
 
 }
 
-int gen_RO(node_t* root, int ifC)
+int gen_RO(node_t* root, char* label, int ifC)
 {
 	token_t* tk = root->children[0]->token;
 	if (strcmp(tk->id, "<TK") == 0) {
-		fprintf(stderr, "\tBRZPOS FOUT%d\n", ifC);
+		fprintf(stderr, "\tBRZPOS %s%d\n", label, ifC);
         return 0;
     } else if (strcmp(tk->id, "<<TK") == 0) {
 		fprintf(stderr, "\tBRPOS FOUT%d\n", ifC);
         return 0;
     } else if (strcmp(tk->id, ">TK") == 0) {
-		fprintf(stderr, "\tBRZNEG FOUT%d\n", ifC);
+		fprintf(stderr, "\tBRZNEG %s%d\n", label, ifC);
         return 0;
     } else if (strcmp(tk->id, ">>TK") == 0) {
 		fprintf(stderr, "\tBRNEG FOUT%d\n", ifC);

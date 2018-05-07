@@ -34,8 +34,8 @@ int gen_iff(node_t* root);
 
 int gen_iter(node_t* root);
 
-int gen_evaluate(node_t* root, int ifC);
+int gen_evaluate(node_t* root, char* label, int ifC);
 
-int gen_RO(node_t* root, int ifC);
+int gen_RO(node_t* root, char* label, int ifC);
 
 #endif
