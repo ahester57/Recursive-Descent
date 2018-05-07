@@ -192,7 +192,7 @@ int gen_xhelp(node_t* root)
 	// THIS FIRSTSTSTSTSTSTSTST
 			displaytoken(root->token);
 	int result = gen_expr(root->children[1]);
-	return 0;
+	return result;
 }
 
 int
@@ -209,6 +209,9 @@ gen_M(node_t* root)
 		case 2:
 			// negate
 			result = -gen_M(root->children[1]);
+			fprintf(stderr, "\tLOAD T%d\n", result);
+			fprintf(stderr, "\tMULT %d\n", -1);
+			fprintf(stderr, "\tSTORE T%d\n", result);
 			return result;
 		default:
 			return 0;
@@ -221,8 +224,7 @@ int gen_R(node_t* root)
 			displaytoken(root->token);
 	char* tkid = child->token->id;
 	if (strcmp(tkid, "<>") == 0) {
-		int res = gen_expr(root->children[0]);
-		return res;
+		return gen_expr(root->children[0]);
 	} else if (strcmp(tkid, "idTK") == 0) {
 		fprintf(stderr, "\tLOAD %s\n", child->token->instance);
 		fprintf(stderr, "\tSTORE T%d\n", tempCount);
