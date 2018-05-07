@@ -14,6 +14,8 @@ C.Z. Janikow */
 static int blockCount = 0;
 static int tempCount = 0;
 static int tempIndex = 0;
+static int iffCount = 0;
+static int iterCount = 0;
 
 static stack_t* globalstack;
 static stack_t** localstacks;
@@ -379,7 +381,25 @@ int gen_out(node_t* root)
 
 int gen_iff(node_t* root)
 {
-
+	int result = 0;
+	switch(root->num_children)
+	{
+		case 1:
+			// wrong
+			return result;
+		case 2: ;
+			int ifC = iffCount++;
+			result = gen_evaluate(root->children[0]);
+/*			fprintf(stderr, "\tLOAD T%d\n", result);
+			fprintf(stderr, "\tMULT %d\n", -1);
+			fprintf(stderr, "\tSTORE T%d\n", result);
+*/
+			result = gen_stat(root->children[1]);
+			fprintf(stderr, "[FOUT%d]: NOOP\n", ifC);
+			return result;
+		default:
+			return 0;
+	}
 
 }
 
