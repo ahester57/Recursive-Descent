@@ -1,0 +1,12 @@
+program
+var x = 0 .
+start
+  read x .
+  iter ( x > 0 )
+  start
+    print x .
+    iff ( x / 2 = = ( x + 1 ) / 2 )
+      print 0 .
+    let x = x - 1 .
+  stop
+stop

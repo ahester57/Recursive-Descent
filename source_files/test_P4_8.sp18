@@ -1,0 +1,8 @@
+program
+var x = 0 .
+start
+	read x .
+	iff (x > 1)
+		iff (x < 11)
+			print x .
+stop

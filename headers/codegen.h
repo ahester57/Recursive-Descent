@@ -1,8 +1,9 @@
 #ifndef CODEGEN_H_
 #define CODEGEN_H_
+#include <stdio.h>
 #include "node.h"
 
-int gen_program(node_t* root);
+int gen_program(node_t* root, FILE* fp);
 
 int gen_block(node_t* root);
 

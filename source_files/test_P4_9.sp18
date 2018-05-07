@@ -1,0 +1,10 @@
+program
+var x = 0 .
+start
+  read x .
+  iter ( x > 0 )
+  start
+    print x .
+    let x = x - 2 .
+  stop
+stop

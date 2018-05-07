@@ -11,6 +11,7 @@ C.Z. Janikow */
 #include "node.h"
 #include "stack.h"
 
+static FILE* outfile;
 static int blockCount = 0;
 static int tempCount = 0;
 static int tempIndex = 0;
@@ -39,15 +40,21 @@ isinoneofthesestacks(token_t* tk, int which_stacks[], int num_stacks)
 }
 
 int
-gen_program(node_t* root)
+gen_program(node_t* root, FILE* fp)
 {
+	if (fp == (FILE*)NULL) {
+		fprintf(stderr, "FILE NOT OPEN\n");
+		return -1;
+	}
+	outfile = fp;
+
 	int result = 0;	
 	tos[0] = -1;
 	// if (g != 0) { uh oh }
 	globalstack = (stack_t*) malloc(2*sizeof(stack_t));
 
 
-    fprintf(stderr, "BEGIN: NOOP\n");
+    fprintf(outfile, "BEGIN: NOOP\n");
 	localstacks = (stack_t**) malloc(16*sizeof(stack_t*));
 
 	switch(root->num_children)
@@ -69,14 +76,14 @@ gen_program(node_t* root)
 			break;
 	}
 
-	fprintf(stderr, "\tSTOP\n");
+	fprintf(outfile, "\tSTOP\n");
 	int i;
     for (i = 0; i < globalstack->nvars; i++) {
-		fprintf(stderr, "\t%s 0\n", globalstack->varstack[i]->instance);
+		fprintf(outfile, "\t%s 0\n", globalstack->varstack[i]->instance);
     }
 
     for (i = 0; i < tempCount+1; i++) {
-		fprintf(stderr, "\tT%d 0\n", i);
+		fprintf(outfile, "\tT%d 0\n", i);
     }
 	return result;
 }
@@ -85,7 +92,7 @@ int
 gen_block(node_t* root)
 {
 	int result = 0;
-	fprintf(stderr, "BLOC%d: NOOP\n", blockCount++);
+	fprintf(outfile, "BLOC%d: NOOP\n", blockCount++);
 			displaytoken(root->token);
 	switch(root->num_children)
 	{
@@ -109,7 +116,7 @@ gen_block(node_t* root)
 			result = gen_vars(root->children[0]);
 			result = gen_stats(root->children[1]);
 		    for (i = 0; i < localstacks[n]->nvars; i++) {
-				fprintf(stderr, "%s 0\n", localstacks[n]->varstack[i]->instance);
+				fprintf(outfile, "%s 0\n", localstacks[n]->varstack[i]->instance);
 		    }
 			return result;
 		default:
@@ -175,8 +182,8 @@ gen_assign(node_t* root)
 	node_t* id = root->children[0];
 	node_t* val = root->children[2];
 	int result = gen_expr(val);
-	fprintf(stderr, "\tLOAD T%d\n", result);		
-	fprintf(stderr, "\tSTORE %s\n", id->token->instance);
+	fprintf(outfile, "\tLOAD T%d\n", result);		
+	fprintf(outfile, "\tSTORE %s\n", id->token->instance);
 	return result;
 }
 
@@ -196,42 +203,42 @@ gen_expr(node_t* root)
 			int t0 = gen_xhelp(root->children[1]);
 			//
 			// store in T0
-			//fprintf(stderr, "\tLOAD %d\n", t0);
+			//fprintf(outfile, "\tLOAD %d\n", t0);
 			int t0_i = tempCount++;
 			t0_i = t0;
-			//fprintf(stderr, "\tSTORE T%d\n", t0_i);
+			//fprintf(outfile, "\tSTORE T%d\n", t0_i);
 			// cal left 
 			int t1 = gen_M(root->children[0]);
 			tempCount++;
 			//if +
 			if (strcmp(root->children[1]->children[0]->token->id,
 					   "+TK") == 0) {
-				fprintf(stderr, "\tLOAD T%d\n", t1);
-				fprintf(stderr, "\tADD T%d\n", t0_i);
-				fprintf(stderr, "\tSTORE T%d\n", t0_i);
+				fprintf(outfile, "\tLOAD T%d\n", t1);
+				fprintf(outfile, "\tADD T%d\n", t0_i);
+				fprintf(outfile, "\tSTORE T%d\n", t0_i);
 				result = t1 + t0;
 				// "ADD temp"
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "-TK") == 0) {
 				//else -
-				fprintf(stderr, "\tLOAD T%d\n", t1);
-				fprintf(stderr, "\tSUB T%d\n", t0_i);
-				fprintf(stderr, "\tSTORE T%d\n", t0_i);
+				fprintf(outfile, "\tLOAD T%d\n", t1);
+				fprintf(outfile, "\tSUB T%d\n", t0_i);
+				fprintf(outfile, "\tSTORE T%d\n", t0_i);
 				result = t1 - t0;
 				// "SUB temp"
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "*TK") == 0) {
 				//else *
-				fprintf(stderr, "\tLOAD T%d\n", t1);
-				fprintf(stderr, "\tMULT T%d\n", t0_i);
-				fprintf(stderr, "\tSTORE T%d\n", t0_i);
+				fprintf(outfile, "\tLOAD T%d\n", t1);
+				fprintf(outfile, "\tMULT T%d\n", t0_i);
+				fprintf(outfile, "\tSTORE T%d\n", t0_i);
 				result = t1 * t0;
 			} else if (strcmp(root->children[1]->children[0]->token->id,
 					   "/TK") == 0) {
 				//else /
-				fprintf(stderr, "\tLOAD T%d\n", t1);
-				fprintf(stderr, "\tDIV T%d\n", t0_i);
-				fprintf(stderr, "\tSTORE T%d\n", t0_i);
+				fprintf(outfile, "\tLOAD T%d\n", t1);
+				fprintf(outfile, "\tDIV T%d\n", t0_i);
+				fprintf(outfile, "\tSTORE T%d\n", t0_i);
 				//result = (int)(t1 / t0);
 				result = 1;
 			}
@@ -264,9 +271,9 @@ gen_M(node_t* root)
 		case 2:
 			// negate
 			result = gen_M(root->children[1]);
-			fprintf(stderr, "\tLOAD T%d\n", result);
-			fprintf(stderr, "\tMULT %d\n", -1);
-			fprintf(stderr, "\tSTORE T%d\n", result);
+			fprintf(outfile, "\tLOAD T%d\n", result);
+			fprintf(outfile, "\tMULT %d\n", -1);
+			fprintf(outfile, "\tSTORE T%d\n", result);
 			return result;
 		default:
 			return 0;
@@ -281,13 +288,13 @@ int gen_R(node_t* root)
 	if (strcmp(tkid, "<>") == 0) {
 		return gen_expr(root->children[0]);
 	} else if (strcmp(tkid, "idTK") == 0) {
-		fprintf(stderr, "\tLOAD %s\n", child->token->instance);
-		fprintf(stderr, "\tSTORE T%d\n", tempCount);
+		fprintf(outfile, "\tLOAD %s\n", child->token->instance);
+		fprintf(outfile, "\tSTORE T%d\n", tempCount);
 		return tempCount;
 	} else if (strcmp(tkid, "intTK") == 0) {
 		displaytoken(child->token);
-		fprintf(stderr, "\tLOAD %d\n", atoi(child->token->instance));
-		fprintf(stderr, "\tSTORE T%d\n", tempCount);
+		fprintf(outfile, "\tLOAD %d\n", atoi(child->token->instance));
+		fprintf(outfile, "\tSTORE T%d\n", tempCount);
 
 		return tempCount;
 	}
@@ -368,7 +375,7 @@ int gen_in(node_t* root)
 	token_t* tk = root->children[0]->token;
 	// check where and what token is
 	// need to redesign stack really
-	fprintf(stderr, "\tREAD %s\n", tk->instance);	
+	fprintf(outfile, "\tREAD %s\n", tk->instance);	
 	return 0;
 }
 
@@ -376,7 +383,7 @@ int gen_out(node_t* root)
 {
 			displaytoken(root->token);
 	int tvar = gen_expr(root->children[0]);
-	fprintf(stderr, "\tWRITE T%d\n", tvar);	
+	fprintf(outfile, "\tWRITE T%d\n", tvar);	
 	return tvar;
 }
 
@@ -392,12 +399,12 @@ int gen_iff(node_t* root)
 		case 2: ;
 			int ifC = iffCount++;
 			result = gen_evaluate(root->children[0], "FOUT", ifC);
-/*			fprintf(stderr, "\tLOAD T%d\n", result);
-			fprintf(stderr, "\tMULT %d\n", -1);
-			fprintf(stderr, "\tSTORE T%d\n", result);
+/*			fprintf(outfile, "\tLOAD T%d\n", result);
+			fprintf(outfile, "\tMULT %d\n", -1);
+			fprintf(outfile, "\tSTORE T%d\n", result);
 */
 			result = gen_stat(root->children[1]);
-			fprintf(stderr, "FOUT%d: NOOP\n", ifC);
+			fprintf(outfile, "FOUT%d: NOOP\n", ifC);
 			return result;
 		default:
 			return 0;
@@ -415,15 +422,15 @@ int gen_iter(node_t* root)
 			return result;
 		case 2: ;
 			int itC = iterCount++;
-			fprintf(stderr, "LIN%d: NOOP\n", itC);
+			fprintf(outfile, "LIN%d: NOOP\n", itC);
 			result = gen_evaluate(root->children[0], "LOUT", itC);
-/*			fprintf(stderr, "\tLOAD T%d\n", result);
-			fprintf(stderr, "\tMULT %d\n", -1);
-			fprintf(stderr, "\tSTORE T%d\n", result);
+/*			fprintf(outfile, "\tLOAD T%d\n", result);
+			fprintf(outfile, "\tMULT %d\n", -1);
+			fprintf(outfile, "\tSTORE T%d\n", result);
 */
 			result = gen_stat(root->children[1]);
-			fprintf(stderr, "\tBR LIN%d\n", itC);
-			fprintf(stderr, "LOUT%d: NOOP\n", itC);
+			fprintf(outfile, "\tBR LIN%d\n", itC);
+			fprintf(outfile, "LOUT%d: NOOP\n", itC);
 			return result;
 		default:
 			return 0;
@@ -445,13 +452,13 @@ int gen_evaluate(node_t* root, char* label, int ifC)
 		case 3: ;
 			//int ifC = iffCount++;
 			int right = gen_expr(root->children[2]);
-/*			fprintf(stderr, "\tLOAD T%d\n", result);
-			fprintf(stderr, "\tMULT %d\n", -1);
-			fprintf(stderr, "\tSTORE T%d\n", result);
+/*			fprintf(outfile, "\tLOAD T%d\n", result);
+			fprintf(outfile, "\tMULT %d\n", -1);
+			fprintf(outfile, "\tSTORE T%d\n", result);
 */
 			int left = gen_expr(root->children[0]);
-			fprintf(stderr, "\tLOAD T%d\n", left);
-			fprintf(stderr, "\tSUB T%d\n", right);
+			fprintf(outfile, "\tLOAD T%d\n", left);
+			fprintf(outfile, "\tSUB T%d\n", right);
 
 			int result = gen_RO(root->children[1], label, ifC);
 
@@ -466,23 +473,23 @@ int gen_RO(node_t* root, char* label, int ifC)
 {
 	token_t* tk = root->children[0]->token;
 	if (strcmp(tk->id, "<TK") == 0) {
-		fprintf(stderr, "\tBRZPOS %s%d\n", label, ifC);
+		fprintf(outfile, "\tBRZPOS %s%d\n", label, ifC);
         return 0;
     } else if (strcmp(tk->id, "<<TK") == 0) {
-		fprintf(stderr, "\tBRPOS FOUT%d\n", ifC);
+		fprintf(outfile, "\tBRPOS FOUT%d\n", ifC);
         return 0;
     } else if (strcmp(tk->id, ">TK") == 0) {
-		fprintf(stderr, "\tBRZNEG %s%d\n", label, ifC);
+		fprintf(outfile, "\tBRZNEG %s%d\n", label, ifC);
         return 0;
     } else if (strcmp(tk->id, ">>TK") == 0) {
-		fprintf(stderr, "\tBRNEG FOUT%d\n", ifC);
+		fprintf(outfile, "\tBRNEG FOUT%d\n", ifC);
         return 0;
     } else if (strcmp(tk->id, "=TK") == 0) {
-		fprintf(stderr, "\tBRZERO FOUT%d\n", ifC);
+		fprintf(outfile, "\tBRZERO FOUT%d\n", ifC);
         return 0;
     } else if (strcmp(tk->id, "==TK") == 0) {
-		fprintf(stderr, "\tBRNEG FOUT%d\n", ifC);
-		fprintf(stderr, "\tBRPOS FOUT%d\n", ifC);
+		fprintf(outfile, "\tBRNEG FOUT%d\n", ifC);
+		fprintf(outfile, "\tBRPOS FOUT%d\n", ifC);
         return 0;
     } else {
         return 0;

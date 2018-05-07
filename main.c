@@ -95,9 +95,13 @@ main(int argc, char** argv)
         return -1;
     }
 
+    char outfile[64]; 
+    sprintf(outfile, "%s%s", fname, ".asm");
     // Passed static semantics
-    gen_program(newroot);
-
+    FILE* fout = fopen(outfile, "w");
+    gen_program(newroot, fout);
+    printf("%s\n", outfile);
+    fclose(fout);
     // Free them
     free(filter);
     free(tokenlist);
