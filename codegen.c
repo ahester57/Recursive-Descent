@@ -259,6 +259,7 @@ gen_M(node_t* root)
 		case 1:
 			// call child()
 			result = gen_R(root->children[0]);
+			tempCount++;
 			return result;
 		case 2:
 			// negate
@@ -389,13 +390,13 @@ int gen_iff(node_t* root)
 			return result;
 		case 2: ;
 			int ifC = iffCount++;
-			result = gen_evaluate(root->children[0]);
+			result = gen_evaluate(root->children[0], ifC);
 /*			fprintf(stderr, "\tLOAD T%d\n", result);
 			fprintf(stderr, "\tMULT %d\n", -1);
 			fprintf(stderr, "\tSTORE T%d\n", result);
 */
 			result = gen_stat(root->children[1]);
-			fprintf(stderr, "[FOUT%d]: NOOP\n", ifC);
+			fprintf(stderr, "FOUT%d: NOOP\n", ifC);
 			return result;
 		default:
 			return 0;
@@ -408,8 +409,33 @@ int gen_iter(node_t* root)
 
 }
 
-int gen_evaluate(node_t* root)
+int gen_evaluate(node_t* root, int ifC)
 {
+	int result = 0;
+	switch(root->num_children)
+	{
+		case 1:
+			// wrong
+			return result;
+		case 2:
+			// wrong
+			return result;
+		case 3: ;
+			//int ifC = iffCount++;
+			int right = gen_expr(root->children[2]);
+/*			fprintf(stderr, "\tLOAD T%d\n", result);
+			fprintf(stderr, "\tMULT %d\n", -1);
+			fprintf(stderr, "\tSTORE T%d\n", result);
+*/
+			int left = gen_expr(root->children[0]);
+			fprintf(stderr, "\tLOAD T%d\n", left);
+			fprintf(stderr, "\tSUB T%d\n", right);
+			fprintf(stderr, "\tBRZNEG FOUT%d\n", ifC);
+
+			return result;
+		default:
+			return 0;
+	}
 
 }
 
