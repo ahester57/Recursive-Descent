@@ -2,7 +2,8 @@ program
 var x = 3 .
 var w = 34 .
 start
-	var y .
+	var y = 3 .
+	print y .
 	let y = 5 * x .
 	print x .
 	print y .

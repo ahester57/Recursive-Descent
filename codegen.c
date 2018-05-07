@@ -139,7 +139,30 @@ int gen_vars(node_t* root)
 
 int gen_mvars(node_t* root)
 {
-
+	int result = 0;
+	// ASSIGN VALUES TO VARS
+	switch(root->num_children)
+	{
+		case 1: ;
+			node_t* child = root->children[0];
+			if (strcmp(child->token->id, "<>") == 0) {
+				result = gen_vars(child);
+				return result;
+			} else {
+				// there is no assign
+				return result;
+			}
+		case 3: ; 
+			// only one assign
+			result = gen_assign(root);
+			return result;
+		case 4: ;
+			result = gen_assign(root);
+			result = gen_mvars(root->children[3]);
+			return result;
+		default:
+			return 0;
+	}
 }
 
 int
